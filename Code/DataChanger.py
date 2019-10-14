@@ -2,6 +2,8 @@ import random
 
 ratio = 0.9
 shuffleData = True
+DataPath = "Data/"
+
 
 def ProccesData(UData):
     Replacement = []
@@ -18,7 +20,7 @@ def ProccesData(UData):
 
     return Final
 
-unProccesedData = open("connect-4.data").readlines()
+unProccesedData = open(DataPath + "connect-4.data").readlines()
 data = ProccesData(unProccesedData)
 BitsData = []
 
@@ -55,8 +57,8 @@ if shuffleData:
 training = BitsData[:int(len(BitsData)*ratio)]
 testing = BitsData[int(len(BitsData)*ratio):]
 
-WriteTrFile = open("DataTraining.data","w")
-WriteTeFile = open("DataTest.data","w")
+WriteTrFile = open(DataPath + "DataTraining.data","w")
+WriteTeFile = open(DataPath + "DataTest.data","w")
 
 for data in training:
     String = ""

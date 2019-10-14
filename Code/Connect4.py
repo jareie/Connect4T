@@ -3,14 +3,15 @@ import numpy as np
 #import random
 import TsUtil
 
+dataPath = "Data/"
 #------------------------------------------------------------
 print("Getting Data")
 
 #training = TsUtil.LoadFile("trainingdata.txt")
 #testing = TsUtil.LoadFile("testdata.txt")
 
-training = TsUtil.LoadFile("DataTraining.data")
-testing = TsUtil.LoadFile("DataTest.data")
+training = TsUtil.LoadFile(dataPath + "DataTraining.data")
+testing = TsUtil.LoadFile(dataPath + "DataTest.data")
 print(str(len(training[0])) + " entries")    
 
 TrainX = np.array(training[0])
