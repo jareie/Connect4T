@@ -1,9 +1,11 @@
-from pyTsetlinMachine.tm import MultiClassTsetlinMachine
+#from pyTsetlinMachine.tm import MultiClassTsetlinMachine
 import numpy as np
 #import random
 import TsUtil
 
 dataPath = "Data/"
+variables = TsUtil.LoadCfg("Config.cfg")
+print(variables)
 #------------------------------------------------------------
 print("Getting Data")
 
@@ -75,17 +77,42 @@ def GetOutput(tm,tm_class,clause):
         output.append(outputbit)
     return output
 
-def GetAction(tm,tm_class,clause):
+'''
+det vi trodde:
+1 2 3 4 5 6 7 8 9 10 11 12 1 2 3 4 5 6 7 8 9 10 11 12
+
+det dataen var:
+6 12
+5 11
+4 10
+3 9
+2 8
+1 7
+'''
+def Rearrange(WrongList):
+	output = []
+	for column in range(6):
+		for row in range(7):
+			#index = (6*i)+(6-j)
+			temp = 6-column
+			index = (6*row)+temp
+			output.append(WrongList[index])
+	return output
+
+listtemp = [i for i in range(42)]
+Rearrange(listtemp)
+	
+def ReadableClause(tm,tm_class,clause):
     output = GetOutput(tm,tm_class,clause)
 
     nonNegated = output[:int(len(output)/2)]
     negated = output[int(len(output)/2):]
     
-    tPlayer1 = nonNegated[:int(len(nonNegated)/2)]
-    tPlayer2 = nonNegated[int(len(nonNegated)/2):]
+    tPlayer1 = Rearrange(nonNegated[:int(len(nonNegated)/2)])
+    tPlayer2 = Rearrange(nonNegated[int(len(nonNegated)/2):])
     
-    rPlayer1 = negated[:int(len(negated)/2)]
-    rPlayer2 = negated[int(len(negated)/2):]
+    rPlayer1 = Rearrange(negated[:int(len(negated)/2)])
+    rPlayer2 = Rearrange(negated[int(len(negated)/2):])
     
     print(nonNegated)
     print(negated)
@@ -124,7 +151,6 @@ def GetAction(tm,tm_class,clause):
 #t = MakeTestlin(5000, 35, 45,1)
 #t = MakeTestlin(935, 5, 14.617627461915859,1)
 
-print(TsUtil.LoadCfg("Config.cfg"))
 
 #print(t)
 #action = GetAction(t[0],0,0)
