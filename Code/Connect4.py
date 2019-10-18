@@ -122,16 +122,18 @@ def GetAction(tm,tm_class,clause):
 
 #------------------------------------------------------------
 #t = MakeTestlin(5000, 35, 45,1)
-t = MakeTestlin(935, 5, 14.617627461915859,1)
+#t = MakeTestlin(935, 5, 14.617627461915859,1)
 
-print(t)
+print(TsUtil.LoadCfg("Config.cfg"))
+
+#print(t)
 #action = GetAction(t[0],0,0)
 #for i in action:
 #    print(i)
-for clause in range(935):
-    action = GetAction(t[0],0,clause)
-    for i in action:
-        print(i)
+#for clause in range(935):
+#    action = GetAction(t[0],0,clause)
+#    for i in action:
+#        print(i)
 #for i in range(935):
 #    action.append(GetOutput(t[0],0,i))
 #print("-----------------------------------")
