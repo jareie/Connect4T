@@ -1,11 +1,15 @@
 import Connect4 as Tsm
 import random
+import TsUtil as uti
+import multiprocessing as mp
 
-sizePop = 6
-epochs = 20
-keepMultiplier = 0.9
+variables = uti.LoadCfg("Config.cfg")
 
-Clauses = 5000
+sizePop = int(variables["GeneticTsetlin"]["sizePop"])
+epochs = int(variables["GeneticTsetlin"]["epochs"])
+keepMultiplier = variables["GeneticTsetlin"]["amountKeep"]
+
+Clauses = int(variables["ClauseGeneticTsetlin"]["clauses"])
 
 heldGenes = []
 
@@ -32,6 +36,8 @@ def DNA(amount):
     return [Gene() for i in range(amount)]
 
 def SameGene(gene1,gene2):
+    print(gene1)
+    print(gene2)
     for i in range(len(gene1)):
         if not gene1[i] == gene2[i]:
             return False
@@ -127,27 +133,28 @@ def Generation(listOfGenes):
     print("--------------------------------")
     return newList[int(len(newList)/2):]
 
+if __name__ == "__main__":
+    print("--------------------------------")
+    genes = RateDNA(DNA(sizePop))
+    print(genes)
 
-print("--------------------------------")
-genes = RateDNA(DNA(sizePop))
-print(genes)
-
-for i in range(epochs):
-    genes = Generation(genes)
-    if SameGene(genes[0][0],genes[len(genes)-1][0]):
-        print("New Pool")
-        temp = RateDNA(DNA(int(len(genes)*keepMultiplier)))
-        genes = genes[int(len(genes)*keepMultiplier):] + temp
+    for i in range(epochs):
+        print("Percent Complete: " + str(((i+1)/epochs)*100))
+        genes = Generation(genes)
+        if SameGene(genes[0][0],genes[len(genes)-1][0]):
+            print("New Pool")
+            temp = RateDNA(DNA(int(len(genes)*keepMultiplier)))
+            genes = genes[int(len(genes)*keepMultiplier):] + temp
 
 
-fi = open("Result.txt","w")
-for i in genes:
-    string = ""
-    for j in i[0]:
-        string += str(j) + ", "
-    string += "accuracy: "
-    string += str(i[2])
-    string += "\n"
-    fi.write(string)
-fi.close()
+    fi = open("Result.txt","w")
+    for i in genes:
+        string = ""
+        for j in i[0]:
+            string += str(j) + ", "
+        string += "accuracy: "
+        string += str(i[2])
+        string += "\n"
+        fi.write(string)
+    fi.close()
 

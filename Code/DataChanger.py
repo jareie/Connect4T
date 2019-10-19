@@ -1,8 +1,14 @@
 import random
+import TsUtil
 
-ratio = 0.9
-shuffleData = True
-DataPath = "Data/"
+variables = TsUtil.LoadCfg("Config.cfg")
+
+TestPl = variables["General"]["TestingData"]
+TrainPl = variables["General"]["TrainingData"]
+DataPath = variables["General"]["DataPath"]
+ratio = variables["DataChanger"]["ratio"]
+shuffleData = variables["DataChanger"]["shuffledata"]
+dataPt = variables["DataChanger"]["data"]
 
 
 def ProccesData(UData):
@@ -20,7 +26,7 @@ def ProccesData(UData):
 
     return Final
 
-unProccesedData = open(DataPath + "connect-4.data").readlines()
+unProccesedData = open(DataPath + dataPt).readlines()
 data = ProccesData(unProccesedData)
 BitsData = []
 
@@ -57,8 +63,8 @@ if shuffleData:
 training = BitsData[:int(len(BitsData)*ratio)]
 testing = BitsData[int(len(BitsData)*ratio):]
 
-WriteTrFile = open(DataPath + "DataTraining.data","w")
-WriteTeFile = open(DataPath + "DataTest.data","w")
+WriteTrFile = open(DataPath + TrainPl,"w")
+WriteTeFile = open(DataPath + TestPl,"w")
 
 for data in training:
     String = ""

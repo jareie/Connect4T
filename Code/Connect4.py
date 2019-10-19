@@ -1,10 +1,14 @@
-#from pyTsetlinMachine.tm import MultiClassTsetlinMachine
+from pyTsetlinMachine.tm import MultiClassTsetlinMachine
 import numpy as np
 #import random
 import TsUtil
 
-dataPath = "Data/"
+
 variables = TsUtil.LoadCfg("Config.cfg")
+dataPath = variables["General"]["DataPath"]
+trainPl = variables["General"]["TrainingData"]
+testPl = variables["General"]["TestingData"]
+
 print(variables)
 #------------------------------------------------------------
 print("Getting Data")
@@ -12,8 +16,8 @@ print("Getting Data")
 #training = TsUtil.LoadFile("trainingdata.txt")
 #testing = TsUtil.LoadFile("testdata.txt")
 
-training = TsUtil.LoadFile(dataPath + "DataTraining.data")
-testing = TsUtil.LoadFile(dataPath + "DataTest.data")
+training = TsUtil.LoadFile(dataPath + trainPl)
+testing = TsUtil.LoadFile(dataPath + testPl)
 print(str(len(training[0])) + " entries")    
 
 TrainX = np.array(training[0])
@@ -24,11 +28,11 @@ TestY = np.array(testing[1])
 
 #------------------------------------------------------------
 print("Setting Up Machine")
-clauses = 85
-T = 15
-s = 3.9
+clauses = int(variables["Connect4"]["Clause"])
+T = variables["Connect4"]["T"]
+s = variables["Connect4"]["S"]
 
-epochs = 1
+epochs = int(variables["Connect4"]["epochs"])
 
 def MakeTestlin(Clauses,t,S,Epochs):
     tm = MultiClassTsetlinMachine(Clauses,t,S,boost_true_positive_feedback=0)
@@ -36,7 +40,7 @@ def MakeTestlin(Clauses,t,S,Epochs):
     #tm.fit(TrainX,TrainY,epochs=10)
     #print("Accuracy:", 100*(tm.predict(TestX) == TestY).mean())
     result = 0
-    print("Training")
+    print("Training: Clauses=" + str(Clauses) + ", T=" + str(t)+ ", S=" + str(S))
     for i in range(Epochs):
         tm.fit(TrainX, TrainY, epochs=1)
         result = 100*(tm.predict(TestX) == TestY).mean()
@@ -99,8 +103,6 @@ def Rearrange(WrongList):
 			output.append(WrongList[index])
 	return output
 
-listtemp = [i for i in range(42)]
-Rearrange(listtemp)
 	
 def ReadableClause(tm,tm_class,clause):
     output = GetOutput(tm,tm_class,clause)
@@ -151,7 +153,8 @@ def ReadableClause(tm,tm_class,clause):
 #t = MakeTestlin(5000, 35, 45,1)
 #t = MakeTestlin(935, 5, 14.617627461915859,1)
 
-
+if __name__ == "__main__":
+    ts = MakeTestlin(clauses,T,s,epochs)
 #print(t)
 #action = GetAction(t[0],0,0)
 #for i in action:
