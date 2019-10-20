@@ -1,7 +1,6 @@
 import Connect4 as Tsm
 import random
 import TsUtil as uti
-import multiprocessing as mp
 
 variables = uti.LoadCfg("Config.cfg")
 
@@ -60,6 +59,12 @@ def RateGene(gene):
     machine = out[0]
     score = out[1]
     return (gene,machine,score)
+
+import Proccessing as ps
+def RateMulti(dna):
+    scoreList = ps.MakeWorkers(RateGene,dna)
+    return scoreList
+    
 
 def RateDNA(dna):
     scoreList = []
@@ -125,7 +130,7 @@ def HeldGeneNoScoreAdd(listOfGenes):
 
 def Generation(listOfGenes):
     newDNA = Pairings(listOfGenes)
-    newList = listOfGenes + RateDNA(newDNA)
+    newList = listOfGenes + RateMulti(newDNA)
     HeldGeneNoScoreAdd(newList)
     newList.sort(key=SortVal)
     print(newList)
@@ -135,7 +140,7 @@ def Generation(listOfGenes):
 
 if __name__ == "__main__":
     print("--------------------------------")
-    genes = RateDNA(DNA(sizePop))
+    genes = RateMulti(DNA(sizePop))
     print(genes)
 
     for i in range(epochs):
@@ -147,10 +152,11 @@ if __name__ == "__main__":
             genes = genes[int(len(genes)*keepMultiplier):] + temp
 
 
-    fi = open("Result.txt","w")
+    fi = open(variables["General"]["DataPath"] + "Result.txt","w")
     for i in genes:
         string = ""
-        for j in i[0]:
+        ts = GetTAndS(i[0])
+        for j in ts:
             string += str(j) + ", "
         string += "accuracy: "
         string += str(i[2])
