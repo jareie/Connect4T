@@ -10,6 +10,7 @@ keepMultiplier = variables["GeneticTsetlin"]["amountKeep"]
 
 Clauses = int(variables["ClauseGeneticTsetlin"]["clauses"])
 
+print("Hello")
 heldGenes = []
 
 def GetTAndS(clause,bits):
@@ -52,13 +53,12 @@ def RateGene(gene):
     index = InHeldGenes(gene)
     if index > -1:
         score = heldGenes[index][1]
-        return (gene,None,score)
+        return (gene,score)
     
     temp = GetTAndS(Clauses,gene)
     out = Tsm.MakeTestlin(temp[0],temp[1],temp[2],5)
-    machine = out[0]
     score = out[1]
-    return (gene,machine,score)
+    return (gene,score)
 
 import Proccessing as ps
 def RateMulti(dna):
@@ -104,7 +104,7 @@ def NewSort(gene):
             return i[1]/i[2]
 
 def SortVal(list):
-    return list[2]
+    return list[1]
 
 def HeldGeneAdd(listOfGenes):
     for i in listOfGenes:
@@ -112,11 +112,11 @@ def HeldGeneAdd(listOfGenes):
         for j in heldGenes:
             if SameGene(i[0],j[0]):
                 exists = True
-                j[1] += i[2]
+                j[1] += i[1]
                 j[2] += 1
                 break
         if not exists:
-            heldGenes.append([i[0],i[2],1])
+            heldGenes.append([i[0],i[1],1])
 
 def HeldGeneNoScoreAdd(listOfGenes):
     for i in listOfGenes:
@@ -126,7 +126,7 @@ def HeldGeneNoScoreAdd(listOfGenes):
                 exists = True
                 break
         if not exists:
-            heldGenes.append([i[0],i[2],1])
+            heldGenes.append([i[0],i[1],1])
 
 def Generation(listOfGenes):
     newDNA = Pairings(listOfGenes)

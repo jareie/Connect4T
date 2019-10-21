@@ -9,7 +9,7 @@ dataPath = variables["General"]["DataPath"]
 trainPl = variables["General"]["TrainingData"]
 testPl = variables["General"]["TestingData"]
 
-print(variables)
+#print(variables)
 #------------------------------------------------------------
 print("Getting Data")
 
