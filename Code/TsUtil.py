@@ -30,6 +30,24 @@ def RandomChoices2L(List1,List2,amount):
         tempY.append(List2.pop(i))
     return (tempX,tempY)
 
+def KFold(number,dataset):
+    CategoryW = []
+    CategoryL = []
+    for i in dataset:
+        if i[1] == 0:
+            CategoryL.append(i)
+        elif i[1] == 1:
+            CategoryL.append(i)
+    sets = []
+    for i in range(number):
+        index1 = int(len(CategoryL)/number)
+        index2 = int(len(CategoryW)/number)
+        testList = CategoryL[index1*i:index1*(i+1)] + CategoryW[index2*i:index2*(i+1)]
+        trainList = CategoryL[:index1*i] + CategoryL[index1*i:] + CategoryW[:index2*i] + CategoryW[index2*i:]
+        sets.append([trainList,testList])
+
+    return sets
+
 def LoadCfg(FileName):
     print("Getting Config File")
     config = open("Config.cfg","r")
@@ -88,3 +106,7 @@ def LoadFile(FileName,IncludeDraw=False):
         TestX.append(tempList)
         TestY.append(result)
     return (TestX,TestY)
+
+def GenerateKFoldSet(FileName1,FileName2):
+    data = LoadFile(Filename1) + LoadFile(Filename2)
+    return KFold(10,data)

@@ -47,6 +47,14 @@ def MakeTestlin(Clauses,t,S,Epochs):
         print("Accuracy: ", result)
     return (tm,result)
 
+def CrossValidation():
+    datasets = TsUtil.GenerateKFoldSet(dataPath + trainPl,dataPath + testPl)
+    results = []
+    for sets in datasets:
+        result = MakeTestlin(clauses,T,s,epochs)[1]
+        results.append(result)
+    return results
+    
 
 #------------------------------------------------------------
 #print(MakeTestlin(10000,80,27,15))
