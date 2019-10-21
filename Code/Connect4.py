@@ -100,7 +100,7 @@ def Rearrange(WrongList):
 			#index = (6*i)+(6-j)
 			temp = 6-column
 			index = (6*row)+temp
-			output.append(WrongList[index])
+			output.append(WrongList[index-1])
 	return output
 
 	
@@ -149,25 +149,18 @@ def ReadableClause(tm,tm_class,clause):
             board[column].append(piece)
     return board
 
+def PrintClause(clause):
+    for i in clause:
+        print(i)
+
+def PrintClass(Ts,Clas,clauses):
+    for i in range(clauses):
+        action = ReadableClause(Ts,Clas,i)
+        PrintClause(action)
 #------------------------------------------------------------
 #t = MakeTestlin(5000, 35, 45,1)
 #t = MakeTestlin(935, 5, 14.617627461915859,1)
 
 if __name__ == "__main__":
     ts = MakeTestlin(clauses,T,s,epochs)
-#print(t)
-#action = GetAction(t[0],0,0)
-#for i in action:
-#    print(i)
-#for clause in range(935):
-#    action = GetAction(t[0],0,clause)
-#    for i in action:
-#        print(i)
-#for i in range(935):
-#    action.append(GetOutput(t[0],0,i))
-#print("-----------------------------------")
-#for i in action:
-#    for j in i:
-#        print(j)
-#    print("-----------------------------------")
-#print(action)
+    PrintClass(ts[0],1,clauses)
