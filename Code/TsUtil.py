@@ -108,5 +108,11 @@ def LoadFile(FileName,IncludeDraw=False):
     return (TestX,TestY)
 
 def GenerateKFoldSet(FileName1,FileName2):
-    data = LoadFile(Filename1) + LoadFile(Filename2)
+    file1 = LoadFile(FileName1)
+    file2 = LoadFile(FileName2)
+    dataX = file1[0] + file2[0]
+    dataY = file1[1] + file2[1]
+    data = []
+    for i in range(len(dataX)):
+        data.append((dataX[i],dataY[i]))
     return KFold(10,data)

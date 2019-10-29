@@ -51,7 +51,25 @@ def CrossValidation():
     datasets = TsUtil.GenerateKFoldSet(dataPath + trainPl,dataPath + testPl)
     results = []
     for sets in datasets:
-        result = MakeTestlin(clauses,T,s,epochs)[1]
+        print("Making Tsetlin Machine for new set")
+        tm = MultiClassTsetlinMachine(clauses,T,s,boost_true_positive_feedback=0)
+        result = []
+        TrainX = []
+        TrainY = []
+        for i in sets[0]:
+            TrainX.append(i[0])
+            TrainY.append(i[1])
+
+        TestX = []
+        TestY = []
+        for i in sets[1]:
+            TestX.append(i[0])
+            TestY.append(i[1])
+        
+        for i in range(epochs):
+            tm.fit(np.array(TrainX),np.array(TrainY),epochs=1)
+            result = 100*(tm.predict(np.array(TestX)) == np.array(TestY)).mean()
+            print(" " + str(result))
         results.append(result)
     return results
     
@@ -170,5 +188,8 @@ def PrintClass(Ts,Clas,clauses):
 #t = MakeTestlin(935, 5, 14.617627461915859,1)
 
 if __name__ == "__main__":
-    ts = MakeTestlin(clauses,T,s,epochs)
-    PrintClass(ts[0],1,clauses)
+    #ts = MakeTestlin(clauses,T,s,epochs)
+    #PrintClass(ts[0],1,clauses)
+    result = CrossValidation()
+    print(result)
+    print(result.mean())
