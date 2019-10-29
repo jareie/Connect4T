@@ -42,7 +42,7 @@ def MakeTestlin(Clauses,t,S,Epochs):
     result = 0
     print("Training: Clauses=" + str(Clauses) + ", T=" + str(t)+ ", S=" + str(S))
     for i in range(Epochs):
-        tm.fit(TrainX, TrainY, epochs=1)
+        tm.fit(TrainX, TrainY, epochs=1, incremental=True)
         result = 100*(tm.predict(TestX) == TestY).mean()
         print("Accuracy: ", result)
     return (tm,result)
@@ -67,7 +67,7 @@ def CrossValidation():
             TestY.append(i[1])
         
         for i in range(epochs):
-            tm.fit(np.array(TrainX),np.array(TrainY),epochs=1)
+            tm.fit(np.array(TrainX),np.array(TrainY),epochs=1,incremental=True)
             result = 100*(tm.predict(np.array(TestX)) == np.array(TestY)).mean()
             print(" " + str(result))
         results.append(result)
