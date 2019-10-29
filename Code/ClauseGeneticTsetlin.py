@@ -45,7 +45,7 @@ def SameGene(gene1,gene2):
 
 def InHeldGenes(Gene):
     for i in range(len(heldGenes)):
-        if SameGene(heldGenes[i],Gene):
+        if SameGene(heldGenes[i][0],Gene):
             return i
     return -1
 
