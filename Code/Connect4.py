@@ -119,31 +119,23 @@ det dataen var:
 2 8
 1 7
 '''
-def Rearrange(WrongList):
-	output = []
-	for column in range(6):
-		for row in range(7):
-			#index = (6*i)+(6-j)
-			temp = 6-column
-			index = (6*row)+temp
-			output.append(WrongList[index-1])
-	return output
+
 
 	
-def ReadableClause(tm,tm_class,clause):
-    output = GetOutput(tm,tm_class,clause)
+def ReadableClause(outClause):
+    output = outClause
 
     nonNegated = output[:int(len(output)/2)]
     negated = output[int(len(output)/2):]
     
-    tPlayer1 = Rearrange(nonNegated[:int(len(nonNegated)/2)])
-    tPlayer2 = Rearrange(nonNegated[int(len(nonNegated)/2):])
+    tPlayer1 = TsUtil.Rearrange(nonNegated[:int(len(nonNegated)/2)])
+    tPlayer2 = TsUtil.Rearrange(nonNegated[int(len(nonNegated)/2):])
     
-    rPlayer1 = Rearrange(negated[:int(len(negated)/2)])
-    rPlayer2 = Rearrange(negated[int(len(negated)/2):])
+    rPlayer1 = TsUtil.Rearrange(negated[:int(len(negated)/2)])
+    rPlayer2 = TsUtil.Rearrange(negated[int(len(negated)/2):])
     
-    print(nonNegated)
-    print(negated)
+    #print(nonNegated)
+    #print(negated)
 
     board = []
 
@@ -175,21 +167,57 @@ def ReadableClause(tm,tm_class,clause):
             board[column].append(piece)
     return board
 
+def GetClauses(Ts,Clas,clauses):
+    output = []
+    for i in range(clauses):
+        clause = GetOutput(Ts,Clas,i)
+        action = ReadableClause(clause)
+        output.append(action)
+    return output
+
 def PrintClause(clause):
     for i in clause:
         print(i)
 
-def PrintClass(Ts,Clas,clauses):
-    for i in range(clauses):
-        action = ReadableClause(Ts,Clas,i)
-        PrintClause(action)
+def PrintClass(clauses):
+    for i in clauses:
+        PrintClause(i)
 #------------------------------------------------------------
 #t = MakeTestlin(5000, 35, 45,1)
 #t = MakeTestlin(935, 5, 14.617627461915859,1)
 
+def CheckClauses(clause,boards):
+    for i in boards:
+        #print(claus)
+        result = TsUtil.IsClauseTrue(clause,i)
+        if result == "True":
+            print(result)
+            bo = TsUtil.Readable(i)
+            for j in bo:
+                print(j)
+    
 if __name__ == "__main__":
-    #ts = MakeTestlin(clauses,T,s,epochs)
+    ts = MakeTestlin(clauses,T,s,epochs)
+    actions = GetClauses(ts[0],1,clauses)
+    #print(actions[0])
+    TsUtil.IsClauseTrue(GetOutput(ts[0],1,0),testing[0][0])
     #PrintClass(ts[0],1,clauses)
-    result = CrossValidation()
-    print(result)
-    print(result.mean())
+    #writefile = open("Clauses.txt","w)
+
+    counter = 0
+    clas = 1
+    for i in range(clauses):
+        claus = GetOutput(ts[0],clas,0)
+        if counter%2 == 0:
+            print("Class: " + str(clas) + ", Non-negated")
+        else:
+            print("Class: " + str(clas) + ", Negated")
+        PrintClause(ReadableClause(claus))
+        CheckClauses(claus,testing[0])
+        print("---------------------------------------------")
+            
+
+
+    #result = CrossValidation()
+    #print(result)
+    #print(result.mean())

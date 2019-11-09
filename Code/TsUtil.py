@@ -116,3 +116,66 @@ def GenerateKFoldSet(FileName1,FileName2):
     for i in range(len(dataX)):
         data.append((dataX[i],dataY[i]))
     return KFold(10,data)
+
+def Rearrange(WrongList):
+	output = []
+	for column in range(6):
+		for row in range(7):
+			#index = (6*i)+(6-j)
+			temp = 6-column
+			index = (6*row)+temp
+			output.append(WrongList[index-1])
+	return output
+
+def Readable(board):
+    player1 = Rearrange(board[:int(len(board)/2)])
+    player2 = Rearrange(board[int(len(board)/2):])
+    
+    rBoard = []
+    for column in range(6):
+        rBoard.append([])
+        for row in range(7):
+            index = (column*7)+row
+            p1 = player1[index]
+            p2 = player2[index]
+            if p1 == 1:
+                rBoard[column].append("X")
+            elif p2 == 1:
+                rBoard[column].append("O")
+            else:
+                rBoard[column].append(" ")
+
+    return rBoard
+
+
+def IsClauseTrue(Clause,board):
+    nonNegated = Clause[:int(len(Clause)/2)]
+    negated = Clause[int(len(Clause)/2):]
+    
+    tPlayer1 = nonNegated[:int(len(nonNegated)/2)]
+    tPlayer2 = nonNegated[int(len(nonNegated)/2):]
+    
+    rPlayer1 = negated[:int(len(negated)/2)]
+    rPlayer2 = negated[int(len(negated)/2):]
+
+    for i in range(len(tPlayer1)):
+        if tPlayer1[i] == 1 and rPlayer1[i] == 1:
+            return "invalid"
+        if tPlayer2[i] == 1 and rPlayer2[i] == 1:
+            return "invalid"
+
+    BoardP1 = board[:int(len(board)/2)]
+    BoardP2 = board[int(len(board)/2):]
+    
+    for i in range(len(BoardP1)):
+        if tPlayer1[i] == 1 and BoardP1[i] == 0:
+            return "False"
+        if rPlayer1[i] == 1 and BoardP1[i] == 1:
+            return "False"
+    
+    for i in range(len(BoardP2)):
+        if tPlayer2[i] == 1 and BoardP2[i] == 0:
+            return "False"
+        if rPlayer2[i] == 1 and BoardP2[i] == 1:
+            return "False"
+    return "True"
