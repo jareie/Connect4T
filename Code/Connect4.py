@@ -53,7 +53,7 @@ def CrossValidation():
     for sets in datasets:
         print("Making Tsetlin Machine for new set")
         tm = MultiClassTsetlinMachine(clauses,T,s,boost_true_positive_feedback=0)
-        result = []
+        result = 0.0
         TrainX = []
         TrainY = []
         for i in sets[0]:
@@ -187,12 +187,13 @@ def PrintClass(clauses):
 #t = MakeTestlin(935, 5, 14.617627461915859,1)
 
 def CheckClauses(clause,boards):
-    for i in boards:
+    for i in range(len(boards[0])):
         #print(claus)
-        result = TsUtil.IsClauseTrue(clause,i)
+        result = TsUtil.IsClauseTrue(clause,boards[0][i])
         if result == "True":
-            print(result)
-            bo = TsUtil.Readable(i)
+            print(boards[1][i])
+			print(result)
+            bo = TsUtil.Readable(boards[0][i])
             for j in bo:
                 print(j)
     
@@ -213,7 +214,7 @@ if __name__ == "__main__":
         else:
             print("Class: " + str(clas) + ", Negated")
         PrintClause(ReadableClause(claus))
-        CheckClauses(claus,testing[0])
+        CheckClauses(claus,testing)
         print("---------------------------------------------")
             
 
