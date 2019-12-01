@@ -1,4 +1,4 @@
-from pyTsetlinMachine.tm import MultiClassConvolutionalTsetlinMachine2D
+
 import numpy as np
 #import random
 import TsUtil
@@ -20,13 +20,41 @@ training = TsUtil.LoadFile(dataPath + trainPl)
 testing = TsUtil.LoadFile(dataPath + testPl)
 print(str(len(training[0])) + " entries")    
 
-TrainX = np.array(training[0])
+def ReshapeData(GivenList):
+    output = []
+    for i in GivenList:
+        NewTrainXEntry = TsUtil.Rearrange(i[:42]) + TsUtil.Rearrange(i[42:])
+        temp = np.reshape(NewTrainXEntry,(2,6,7))
+        output.append(temp)
+    return output
+
+TrainX = np.array(ReshapeData(training[0]))
 TrainY = np.array(training[1])
 
-TestX = np.array(testing[0])
+TestX = np.array(ReshapeData(testing[0]))
 TestY = np.array(testing[1])
+#print(np.zeros((2,3,2)))
+
+#TrainX[0].shape = (6,7,2)
+
+
+#Rearange test
+'''
+print(TsUtil.Rearrange([
+    1,2,3,4,5,6,7,
+    8,9,10,11,12,13,14,
+    15,16,17,18,19,20,21,
+    22,23,24,25,26,27,28,
+    29,30,31,32,33,34,35,
+    36,37,38,39,40,41,42
+]))'''
+
+
+import sys
+sys.exit(1)
 
 #------------------------------------------------------------
+from pyTsetlinMachine.tm import MultiClassConvolutionalTsetlinMachine2D
 print("Setting Up Machine")
 clauses = int(variables["Connect4"]["Clause"])
 T = variables["Connect4"]["T"]
