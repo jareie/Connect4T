@@ -124,6 +124,7 @@ def Rearrange(WrongList):
 			#index = (6*i)+(6-j)
 			temp = 6-column
 			index = (6*row)+temp
+			#print(index)
 			output.append(WrongList[index-1])
 	return output
 
@@ -136,6 +137,7 @@ def Readable(board):
         rBoard.append([])
         for row in range(7):
             index = (column*7)+row
+            #print(index)
             p1 = player1[index]
             p2 = player2[index]
             if p1 == 1:
@@ -179,3 +181,61 @@ def IsClauseTrue(Clause,board):
         if rPlayer2[i] == 1 and BoardP2[i] == 1:
             return "False"
     return "True"
+
+def RandomBoard():
+    player1 = [0 for i in range(42)]
+    player2 = [0 for i in range(42)]
+    number = random.randint(14,84)
+    player1bits = int(number/2)
+    player2bits = int(number/2)
+    if number % 2 > 0:
+        player1bits = player1bits + 1
+    for i in range(player1bits):
+        placement = 0
+        while True:
+            placement = random.randint(0,6)
+            #column = 0-5
+            #row = 0-6
+            #(column*7)+row
+            #temp = 6-column
+			#index = (6*row)+temp
+            if player1[(6*placement)+5] == 0:
+                break
+        
+        cloumn = player1[6*placement:(6*placement)+5]
+        index = -1
+        for j in range(0,len(cloumn)):
+            if cloumn[j] == 0:
+                index = j
+                break
+        if index > -1:
+            player1[(6*placement)+index] = 1
+    
+    for i in range(player2bits):
+        placement = 0
+        while True:
+            placement = random.randint(0,6)
+            if player2[(6*placement)+5] == 1:
+                continue
+            break
+        
+        cloumn = player2[6*placement:(6*placement)+5]
+        index = -1
+        for j in range(len(cloumn)):
+            if cloumn[j] == 0:
+                index = j
+                break
+        if index > -1:
+            player2[(6*placement)+index] = 1
+    
+    return player1 + player2
+
+
+bd = RandomBoard()
+#print(len(bd))
+Rearrange(bd[:42])
+print("-------------------")
+print(bd)
+rad = Readable(bd)
+for i in rad:
+    print(i)

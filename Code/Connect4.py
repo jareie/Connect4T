@@ -186,20 +186,34 @@ def PrintClass(clauses):
 #t = MakeTestlin(5000, 35, 45,1)
 #t = MakeTestlin(935, 5, 14.617627461915859,1)
 
+def CheckClause(clause,board):
+    result = TsUtil.IsClauseTrue(clause,board)
+    if result == "True":
+        print("-----------")
+        #print(result)
+        bo = TsUtil.Readable(board)
+        for j in bo:
+            print(j)
+    return result
+
 def CheckClauses(clause,boards):
     for i in range(len(boards[0])):
+        result = CheckClause(clause,boards[0][i])
         #print(claus)
-        result = TsUtil.IsClauseTrue(clause,boards[0][i])
         if result == "True":
-            print(boards[1][i])
-			print(result)
-            bo = TsUtil.Readable(boards[0][i])
-            for j in bo:
-                print(j)
-    
+            boardRes = boards[1][i]
+            if boardRes == 0:
+                print("Loss")
+            elif boardRes == 1:
+                print("Win")
+            elif boardRes == 2:
+                print("Draw")
+
+
+
 if __name__ == "__main__":
     ts = MakeTestlin(clauses,T,s,epochs)
-    actions = GetClauses(ts[0],1,clauses)
+    '''actions = GetClauses(ts[0],1,clauses)
     #print(actions[0])
     TsUtil.IsClauseTrue(GetOutput(ts[0],1,0),testing[0][0])
     #PrintClass(ts[0],1,clauses)
@@ -207,16 +221,25 @@ if __name__ == "__main__":
 
     counter = 0
     clas = 1
+    
+    randomBoards = []
+    for i in range(1000):
+        randomBoards.append(TsUtil.RandomBoard())
+
     for i in range(clauses):
-        claus = GetOutput(ts[0],clas,0)
+        claus = GetOutput(ts[0],clas,i)
         if counter%2 == 0:
             print("Class: " + str(clas) + ", Non-negated")
         else:
             print("Class: " + str(clas) + ", Negated")
         PrintClause(ReadableClause(claus))
-        CheckClauses(claus,testing)
+        
+        for board in randomBoards:
+            CheckClause(claus,board)
+        #break
+        #CheckClauses(claus,testing)
         print("---------------------------------------------")
-            
+            '''
 
 
     #result = CrossValidation()
