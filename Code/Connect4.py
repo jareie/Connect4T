@@ -185,9 +185,13 @@ if __name__ == "__main__":
     counter = -1
     clas = 1
     
-    randomBoards = []
-    for i in range(1000):
-        randomBoards.append(TsUtil.RandomBoard())
+    #randomBoards = []
+    #for i in range(1000):
+    #    randomBoards.append(TsUtil.RandomBoard())
+
+    boards = []
+    for i in range(len(TestX)):
+        boards.append((TestX[i],TestY[i]))
 
     #Get Classes and create list/tuple with score
     TotalClausesWScore = []
@@ -201,7 +205,7 @@ if __name__ == "__main__":
             continue
         #PrintClause(TsUtil.ReadableClause(i[0]))
         
-        for board in randomBoards:
+        for board in boards:
             if TsUtil.IsClauseTrue(i[0],board) == "True":
                 i[1] += 1
         #break

@@ -24,7 +24,7 @@ def ReshapeData(GivenList):
     output = []
     for i in GivenList:
         NewTrainXEntry = TsUtil.Rearrange(i[:42]) + TsUtil.Rearrange(i[42:])
-        temp = np.reshape(NewTrainXEntry,(2,6,7))
+        temp = np.reshape(NewTrainXEntry,(7,6,2))
         output.append(temp)
     return output
 
@@ -63,8 +63,24 @@ s = variables["Connect4"]["S"]
 epochs = int(variables["Connect4"]["epochs"])
 
 
-ctm = MultiClassConvolutionalTsetlinMachine2D(1000, 50, 14.617627461915859, (2, 2),weighted_clauses=True, boost_true_positive_feedback=0)
+ctm = MultiClassConvolutionalTsetlinMachine2D(1000, 50, 14.617627461915859, (4, 4),weighted_clauses=True, boost_true_positive_feedback=0)
 
 ctm.fit(TrainX, TrainY, epochs=15)
 
 print("Accuracy:", 100*(ctm.predict(TestX) == TestY).mean())
+
+def GetOutput(tm,tm_class,clause):
+    output = []
+    for i in range(84*2):
+
+        outputbit = tm.ta_action(tm_class,clause,i)
+        output.append(outputbit)
+    return output
+
+def GetClauses(Ts,Clas,clauses):
+    output = []
+    for i in range(clauses):
+        clause = GetOutput(ctm,Clas,i)
+        action = TsUtil.ReadableClause(clause)
+        output.append(action)
+    return output
