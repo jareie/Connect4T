@@ -206,7 +206,8 @@ if __name__ == "__main__":
         #PrintClause(TsUtil.ReadableClause(i[0]))
         
         for board in boards:
-            if TsUtil.IsClauseTrue(i[0],board) == "True":
+            evaluation = TsUtil.IsClauseTrue(i[0],board[0])
+            if evaluation == "True":
                 i[1] += 1
         #break
         #CheckClauses(claus,testing)
