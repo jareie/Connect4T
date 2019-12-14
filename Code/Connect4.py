@@ -116,7 +116,8 @@ def GetOutput(tm,tm_class,clause):
 
 '''
 det vi trodde:
-1 2 3 4 5 6 7 8 9 10 11 12 1 2 3 4 5 6 7 8 9 10 11 12
+1 2 3 4 5 6 7
+8 9 10 11 12 1 2 3 4 5 6 7 8 9 10 11 12
 
 det dataen var:
 6 12
@@ -185,20 +186,27 @@ if __name__ == "__main__":
     counter = -1
     clas = 1
     
-    #randomBoards = []
-    #for i in range(1000):
-    #    randomBoards.append(TsUtil.RandomBoard())
-
     boards = []
-    for i in range(len(TestX)):
-        boards.append((TestX[i],TestY[i]))
+    for i in range(1000):
+        boards.append(TsUtil.AltRandomBoard())
 
+    #boards = []
+    #for i in range(len(TestX)):
+    #    boards.append((TestX[i],TestY[i]))
+
+ 
+    
     #Get Classes and create list/tuple with score
     TotalClausesWScore = []
     for i in range(clauses):
         claus = GetOutput(ts[0],clas,i)
         TotalClausesWScore.append([claus,0])
 
+    print(TsUtil.Rearrange([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42]))
+    #for i in TotalClausesWScore:
+
+    
+    '''
     for i in TotalClausesWScore:
         counter += 1
         if counter%2 > 0:
@@ -227,6 +235,7 @@ if __name__ == "__main__":
     print(len(TotalClausesWScore))
     print(counter)
     #print(TotalClausesWScore)
+    '''
 
 
     #result = CrossValidation()
