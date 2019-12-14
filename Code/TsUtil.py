@@ -231,34 +231,39 @@ def IsClauseTrue(Clause,board):
 def TransformBoard(board):
     player1 = [0 for i in range(42)]
     player2 = [0 for i in range(42)]
-
+    #print(board)
     for row in range(len(board)):
         for column in range(len(board[row])):
-            index = row*7 + column
-            if board[row][column] == "X":
+            index = row*6 + column
+            #print(index)
+            if board[row][column] == "X":   
                 player1[index] = 1
             elif board[row][column] == "O":
                 player2[index] = 1                
-    bits = player1 + player2
+    bits = Rearrange(player1) + Rearrange(player2)
     return bits
 
-def AltRandomBoard().
+def AltRandomBoard():
     board = [[],[],[],[],[],[],[]]
-    placements = random.randint(0,42)
-    
-    if placements%2 > 0:
-        p1Placements += 1
+    placements = random.randint(0,41)
     
     for i in range(int(placements/2)):
-        bplacement = random.randint(0,7)
-        while len(board[bplacement]) > 6 :
-            bplacement = random.randint(0,7)
+        bplacement = random.randint(0,6)
+        while len(board[bplacement]) > 5 :
+            bplacement = random.randint(0,6)
         board[bplacement].append("X")
 
-        bplacement = random.randint(0,7)
-        while len(board[bplacement]) > 6 :
-            bplacement = random.randint(0,7)
+        bplacement = random.randint(0,6)
+        while len(board[bplacement]) > 5 :
+            bplacement = random.randint(0,6)
         board[bplacement].append("O")
+
+    if placements%2 > 0:
+        bplacement = random.randint(0,6)
+        while len(board[bplacement]) > 5 :
+            bplacement = random.randint(0,6)
+        board[bplacement].append("X")
+
     return TransformBoard(board)
 
 

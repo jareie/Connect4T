@@ -175,6 +175,18 @@ def CheckClauses(clause,boards):
 def sortByKey(inp):
     return inp[1]
 
+def sortByBit(inp):
+    result = 0
+    inp1 = inp[0][:42]
+    inp2 = inp[0][42:]
+    
+    for i in inp1:
+        result += i*3
+    for i in inp2:
+        result += i
+        
+    return result + 100*(result/inp[1])
+
 if __name__ == "__main__":
     ts = MakeTestlin(clauses,T,s,epochs)
     actions = GetClauses(ts[0],1,clauses)
@@ -200,11 +212,29 @@ if __name__ == "__main__":
     TotalClausesWScore = []
     for i in range(clauses):
         claus = GetOutput(ts[0],clas,i)
-        TotalClausesWScore.append([claus,0])
+        
+        typeOfClause = "Non"
+        if i%2 > 0:
+            continue
+            typeOfClause = "Negated"
 
-    print(TsUtil.Rearrange([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42]))
-    #for i in TotalClausesWScore:
+        TotalClausesWScore.append([claus,0,typeOfClause])
 
+
+    #print(TsUtil.Rearrange([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42]))
+    for claus in TotalClausesWScore:
+        for board in boards:
+            evaluation = TsUtil.IsClauseTrue(claus[0],board)
+            if evaluation == "True":
+                claus[1] += 1
+    
+    TotalClausesWScore.sort(key=sortByBit)
+    
+    ClausesThatEvaluates = TotalClausesWScore[len(TotalClausesWScore)-4:len(TotalClausesWScore)-1]
+    print(ClausesThatEvaluates)
+    out = TsUtil.ReadableClause(TotalClausesWScore[len(TotalClausesWScore)-1][0])
+    for i in out:
+        print(i)
     
     '''
     for i in TotalClausesWScore:
