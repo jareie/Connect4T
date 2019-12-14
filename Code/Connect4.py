@@ -207,8 +207,17 @@ if __name__ == "__main__":
         
         for board in boards:
             evaluation = TsUtil.IsClauseTrue(i[0],board[0])
+            result = -1
+            
             if evaluation == "True":
+                result = 1
+            elif evaluation == "False":
+                result = 0
+            
+            if result == board[1]:
                 i[1] += 1
+            else:
+                i[1] -= 1 
         #break
         #CheckClauses(claus,testing)
         #print("---------------------------------------------")
