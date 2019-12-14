@@ -171,7 +171,8 @@ def CheckClauses(clause,boards):
             elif boardRes == 2:
                 print("Draw")
 
-
+def sortByKey(inp):
+    return inp[1]
 
 if __name__ == "__main__":
     ts = MakeTestlin(clauses,T,s,epochs)
@@ -206,7 +207,9 @@ if __name__ == "__main__":
         #break
         #CheckClauses(claus,testing)
         #print("---------------------------------------------")
-        
+    
+    TotalClausesWScore.sort(key=sortByKey)
+    print(TotalClausesWScore)
     print(len(TotalClausesWScore))
     print(counter)
     #print(TotalClausesWScore)
