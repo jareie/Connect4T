@@ -181,7 +181,7 @@ if __name__ == "__main__":
     #PrintClass(ts[0],1,clauses)
     #writefile = open("Clauses.txt","w)
 
-    counter = 0
+    counter = -1
     clas = 1
     
     randomBoards = []
@@ -192,14 +192,12 @@ if __name__ == "__main__":
     TotalClausesWScore = []
     for i in range(clauses):
         claus = GetOutput(ts[0],clas,i)
-        TotalClausesWScore.append((claus,0))
+        TotalClausesWScore.append([claus,0])
 
     for i in TotalClausesWScore:
-        if counter%2 == 0:
-            print("Class: " + str(clas) + ", Non-negated")
-        else:
+        counter += 1
+        if counter%2 > 0:
             continue
-            print("Class: " + str(clas) + ", Negated")
         #PrintClause(TsUtil.ReadableClause(i[0]))
         
         for board in randomBoards:
@@ -208,8 +206,10 @@ if __name__ == "__main__":
         #break
         #CheckClauses(claus,testing)
         #print("---------------------------------------------")
-        counter += 1
-    
+        
+    print(len(TotalClausesWScore))
+    print(counter)
+    #print(TotalClausesWScore)
 
 
     #result = CrossValidation()

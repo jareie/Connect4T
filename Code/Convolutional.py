@@ -50,8 +50,8 @@ print(TsUtil.Rearrange([
 ]))'''
 
 
-import sys
-sys.exit(1)
+#import sys
+#sys.exit(1)
 
 #------------------------------------------------------------
 from pyTsetlinMachine.tm import MultiClassConvolutionalTsetlinMachine2D
@@ -63,8 +63,8 @@ s = variables["Connect4"]["S"]
 epochs = int(variables["Connect4"]["epochs"])
 
 
-ctm = MultiClassConvolutionalTsetlinMachine2D(40, 60, 3.9, (2, 2), boost_true_positive_feedback=0)
+ctm = MultiClassConvolutionalTsetlinMachine2D(1000, 50, 14.617627461915859, (2, 2),weighted_clauses=True, boost_true_positive_feedback=0)
 
-ctm.fit(TrainX, TrainY, epochs=5000)
+ctm.fit(TrainX, TrainY, epochs=15)
 
 print("Accuracy:", 100*(ctm.predict(TestX) == TestY).mean())

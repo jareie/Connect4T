@@ -10,7 +10,6 @@ keepMultiplier = variables["GeneticTsetlin"]["amountKeep"]
 
 Clauses = int(variables["ClauseGeneticTsetlin"]["clauses"])
 
-print("Hello")
 heldGenes = []
 
 def GetTAndS(clause,bits):
@@ -18,11 +17,15 @@ def GetTAndS(clause,bits):
     sbits = bits[int(len(bits)/2):]
     T = 0
     s = 0
-    for i in range(len(Tbits)):
+    RangeBitsT = len(Tbits)
+    for i in range(RangeBitsT):
         if Tbits[i] == 1:
-            T += (2**(7-i))
+            T += (2**((RangeBitsT-1)-i))
+
+    RangeBitsS = len(sbits)    
+    for i in range(RangeBitsS):
         if sbits[i] == 1:
-            s += (2**(7-i))
+            s += (2**((RangeBitsS-1)-i))
     return [clause,T,s]
 
 def Gene():
