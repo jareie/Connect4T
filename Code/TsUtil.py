@@ -128,9 +128,54 @@ def Rearrange(WrongList):
 			output.append(WrongList[index-1])
 	return output
 
+def ReadableClause(outClause):
+    output = outClause
+
+    nonNegated = output[:int(len(output)/2)]
+    negated = output[int(len(output)/2):]
+    
+    tPlayer1 = nonNegated[:int(len(nonNegated)/2)]
+    tPlayer2 = nonNegated[int(len(nonNegated)/2):]
+    
+    rPlayer1 = negated[:int(len(negated)/2)]
+    rPlayer2 = negated[int(len(negated)/2):]
+    
+    #print(nonNegated)
+    #print(negated)
+
+    board = []
+
+    for column in range(6):
+        board.append([])
+        for row in range(7):
+            tp1 = tPlayer1[(column*7)+row]
+            tp2 = tPlayer2[(column*7)+row]
+            rp1 = rPlayer1[(column*7)+row]
+            rp2 = rPlayer2[(column*7)+row]
+            fail = (tp1 and rp1) or (tp2 and rp2)
+            piece = ""
+            if fail:
+                piece = "f"
+            elif rp1 and rp2:
+                piece = "-"
+            elif tp1 and tp2:
+                piece = "*"
+            elif tp1:
+                piece = "X"
+            elif rp1:
+                piece = "x"
+            elif tp2:
+                piece = "O"
+            elif rp2:
+                piece = "o"
+            else:
+                piece = "_"
+            board[column].append(piece)
+    return board
+
 def Readable(board):
-    player1 = Rearrange(board[:int(len(board)/2)])
-    player2 = Rearrange(board[int(len(board)/2):])
+    player1 = board[:int(len(board)/2)]
+    player2 = board[int(len(board)/2):]
     
     rBoard = []
     for column in range(6):
@@ -185,11 +230,14 @@ def IsClauseTrue(Clause,board):
 def RandomBoard():
     player1 = [0 for i in range(42)]
     player2 = [0 for i in range(42)]
+    
     number = random.randint(14,84)
     player1bits = int(number/2)
     player2bits = int(number/2)
+    
     if number % 2 > 0:
         player1bits = player1bits + 1
+    
     for i in range(player1bits):
         placement = 0
         while True:

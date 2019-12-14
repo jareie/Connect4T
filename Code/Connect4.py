@@ -20,10 +20,17 @@ training = TsUtil.LoadFile(dataPath + trainPl)
 testing = TsUtil.LoadFile(dataPath + testPl)
 print(str(len(training[0])) + " entries")    
 
-TrainX = np.array(training[0])
+def ReshapeData(GivenList):
+    output = []
+    for i in GivenList:
+        NewTrainXEntry = TsUtil.Rearrange(i[:42]) + TsUtil.Rearrange(i[42:])
+        output.append(NewTrainXEntry)
+    return output
+
+TrainX = np.array(ReshapeData(training[0]))
 TrainY = np.array(training[1])
 
-TestX = np.array(testing[0])
+TestX = np.array(ReshapeData(testing[0]))
 TestY = np.array(testing[1])
 
 #------------------------------------------------------------
@@ -121,57 +128,11 @@ det dataen var:
 '''
 
 
-	
-def ReadableClause(outClause):
-    output = outClause
-
-    nonNegated = output[:int(len(output)/2)]
-    negated = output[int(len(output)/2):]
-    
-    tPlayer1 = TsUtil.Rearrange(nonNegated[:int(len(nonNegated)/2)])
-    tPlayer2 = TsUtil.Rearrange(nonNegated[int(len(nonNegated)/2):])
-    
-    rPlayer1 = TsUtil.Rearrange(negated[:int(len(negated)/2)])
-    rPlayer2 = TsUtil.Rearrange(negated[int(len(negated)/2):])
-    
-    #print(nonNegated)
-    #print(negated)
-
-    board = []
-
-    for column in range(6):
-        board.append([])
-        for row in range(7):
-            tp1 = tPlayer1[(column*7)+row]
-            tp2 = tPlayer2[(column*7)+row]
-            rp1 = rPlayer1[(column*7)+row]
-            rp2 = rPlayer2[(column*7)+row]
-            fail = (tp1 and rp1) or (tp2 and rp2)
-            piece = ""
-            if fail:
-                piece = "f"
-            elif rp1 and rp2:
-                piece = "-"
-            elif tp1 and tp2:
-                piece = "*"
-            elif tp1:
-                piece = "X"
-            elif rp1:
-                piece = "x"
-            elif tp2:
-                piece = "O"
-            elif rp2:
-                piece = "o"
-            else:
-                piece = "_"
-            board[column].append(piece)
-    return board
-
 def GetClauses(Ts,Clas,clauses):
     output = []
     for i in range(clauses):
         clause = GetOutput(Ts,Clas,i)
-        action = ReadableClause(clause)
+        action = TsUtil.ReadableClause(clause)
         output.append(action)
     return output
 
@@ -185,7 +146,7 @@ def PrintClass(clauses):
 #------------------------------------------------------------
 #t = MakeTestlin(5000, 35, 45,1)
 #t = MakeTestlin(935, 5, 14.617627461915859,1)
-
+#Sjekker en caluse mot ett brett
 def CheckClause(clause,board):
     result = TsUtil.IsClauseTrue(clause,board)
     if result == "True":
@@ -196,6 +157,7 @@ def CheckClause(clause,board):
             print(j)
     return result
 
+#Sjekker en clause mot flere brett
 def CheckClauses(clause,boards):
     for i in range(len(boards[0])):
         result = CheckClause(clause,boards[0][i])
@@ -213,7 +175,7 @@ def CheckClauses(clause,boards):
 
 if __name__ == "__main__":
     ts = MakeTestlin(clauses,T,s,epochs)
-    '''actions = GetClauses(ts[0],1,clauses)
+    actions = GetClauses(ts[0],1,clauses)
     #print(actions[0])
     TsUtil.IsClauseTrue(GetOutput(ts[0],1,0),testing[0][0])
     #PrintClass(ts[0],1,clauses)
@@ -226,20 +188,28 @@ if __name__ == "__main__":
     for i in range(1000):
         randomBoards.append(TsUtil.RandomBoard())
 
+    #Get Classes and create list/tuple with score
+    TotalClausesWScore = []
     for i in range(clauses):
         claus = GetOutput(ts[0],clas,i)
+        TotalClausesWScore.append((claus,0))
+
+    for i in TotalClausesWScore:
         if counter%2 == 0:
             print("Class: " + str(clas) + ", Non-negated")
         else:
+            continue
             print("Class: " + str(clas) + ", Negated")
-        PrintClause(ReadableClause(claus))
+        #PrintClause(TsUtil.ReadableClause(i[0]))
         
         for board in randomBoards:
-            CheckClause(claus,board)
+            if TsUtil.IsClauseTrue(i[0],board) == "True":
+                i[1] += 1
         #break
         #CheckClauses(claus,testing)
-        print("---------------------------------------------")
-            '''
+        #print("---------------------------------------------")
+        counter += 1
+    
 
 
     #result = CrossValidation()
