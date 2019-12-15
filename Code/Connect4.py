@@ -173,19 +173,15 @@ def CheckClauses(clause,boards):
                 print("Draw")
 
 def sortByKey(inp):
-    return inp[1]
+    return len(inp[2])
 
 def sortByBit(inp):
     result = 0
-    inp1 = inp[0][:42]
-    inp2 = inp[0][42:]
     
-    for i in inp1:
-        result += i*3
-    for i in inp2:
+    for i in inp:
         result += i
         
-    return result + 100*(result/inp[1])
+    return result
 
 if __name__ == "__main__":
     ts = MakeTestlin(clauses,T,s,epochs)
@@ -218,7 +214,7 @@ if __name__ == "__main__":
             continue
             typeOfClause = "Negated"
 
-        TotalClausesWScore.append([claus,0,typeOfClause])
+        TotalClausesWScore.append([claus,typeOfClause,[]])
 
 
     #print(TsUtil.Rearrange([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42]))
@@ -226,15 +222,40 @@ if __name__ == "__main__":
         for board in boards:
             evaluation = TsUtil.IsClauseTrue(claus[0],board)
             if evaluation == "True":
-                claus[1] += 1
+                claus[2].append(board)
     
-    TotalClausesWScore.sort(key=sortByBit)
+    #TotalClausesWScore.sort(key=sortByBit)
     
-    ClausesThatEvaluates = TotalClausesWScore[len(TotalClausesWScore)-4:len(TotalClausesWScore)-1]
-    print(ClausesThatEvaluates)
-    out = TsUtil.ReadableClause(TotalClausesWScore[len(TotalClausesWScore)-1][0])
-    for i in out:
-        print(i)
+    ClausesDict = [[] for i in range(85)]
+    for claus in TotalClausesWScore:
+        bits = sortByBit(claus[0])
+        ClausesDict[bits].append(claus)
+
+    for i in ClausesDict:
+        i.sort(key=sortByKey)
+    
+    Directory = "Clauses: " + str(clauses) + ", Threshold:" + str(T) + ", S: " + str(s) + ", Epochs: " + str(epochs)
+    import os
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    
+    counter = 0
+    for i in ClausesDict[40:]:
+        if len(i)>0:
+            counter += len(i)
+            directory = ""
+            
+            for bdb in i:
+                String = "Bits Set: " + sortByBit(bdb[0]) + ", Type of Clause: " + bdb[1] + ", Boards: " + str(len(bdb[2]))
+                open(Directory + "/" + String,"w")
+                bord = TsUtil.ReadableClause(bdb[0])
+                for row in bord:
+                    print(row)
+                print("-----------------------")
+
+    print(counter)
+
+
     
     '''
     for i in TotalClausesWScore:
