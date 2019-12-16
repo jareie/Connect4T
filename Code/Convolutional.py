@@ -2,9 +2,11 @@
 import numpy as np
 #import random
 import TsUtil
+import GeneralUtil
+import DataUtil
 
 
-variables = TsUtil.LoadCfg("Config.cfg")
+variables = GeneralUtil.LoadCfg("Config.cfg")
 dataPath = variables["General"]["DataPath"]
 trainPl = variables["General"]["TrainingData"]
 testPl = variables["General"]["TestingData"]
@@ -16,8 +18,8 @@ print("Getting Data")
 #training = TsUtil.LoadFile("trainingdata.txt")
 #testing = TsUtil.LoadFile("testdata.txt")
 
-training = TsUtil.LoadFile(dataPath + trainPl)
-testing = TsUtil.LoadFile(dataPath + testPl)
+training = DataUtil.LoadFile(dataPath + trainPl)
+testing = DataUtil.LoadFile(dataPath + testPl)
 print(str(len(training[0])) + " entries")    
 
 def ReshapeData(GivenList):

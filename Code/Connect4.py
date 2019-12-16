@@ -1,13 +1,17 @@
-from pyTsetlinMachine.tm import MultiClassTsetlinMachine
+
 import numpy as np
 #import random
 import TsUtil
+import GeneralUtil
+import DataUtil
 
 
-variables = TsUtil.LoadCfg("Config.cfg")
+variables = GeneralUtil.LoadCfg("Config.cfg")
 dataPath = variables["General"]["DataPath"]
 trainPl = variables["General"]["TrainingData"]
 testPl = variables["General"]["TestingData"]
+
+convolutional = variables["Connect4"]["Convolutional"]
 
 #print(variables)
 #------------------------------------------------------------
@@ -16,21 +20,15 @@ print("Getting Data")
 #training = TsUtil.LoadFile("trainingdata.txt")
 #testing = TsUtil.LoadFile("testdata.txt")
 
-training = TsUtil.LoadFile(dataPath + trainPl)
-testing = TsUtil.LoadFile(dataPath + testPl)
+training = DataUtil.LoadFile(dataPath + trainPl)
+testing = DataUtil.LoadFile(dataPath + testPl)
 print(str(len(training[0])) + " entries")    
 
-def ReshapeData(GivenList):
-    output = []
-    for i in GivenList:
-        NewTrainXEntry = TsUtil.Rearrange(i[:42]) + TsUtil.Rearrange(i[42:])
-        output.append(NewTrainXEntry)
-    return output
 
-TrainX = np.array(ReshapeData(training[0]))
+TrainX = np.array(TsUtil.ReshapeData(training[0], convolutional))
 TrainY = np.array(training[1])
 
-TestX = np.array(ReshapeData(testing[0]))
+TestX = np.array(TsUtil.ReshapeData(testing[0], convolutional))
 TestY = np.array(testing[1])
 
 #------------------------------------------------------------
@@ -41,8 +39,24 @@ s = variables["Connect4"]["S"]
 
 epochs = int(variables["Connect4"]["epochs"])
 
+WindowX = int(variables["Connect4"]["WindowX"])
+WindowY = int(variables["Connect4"]["WindowY"])
+
+if convolutional:
+    from pyTsetlinMachine.tm import MultiClassConvolutionalTsetlinMachine2D as TM
+else:
+    from pyTsetlinMachine.tm import MultiClassTsetlinMachine as TM
+
 def MakeTestlin(Clauses,t,S,Epochs):
-    tm = MultiClassTsetlinMachine(Clauses,t,S,boost_true_positive_feedback=0)
+    def GetMachine():
+        if convolutional:
+            return TM(Clauses, t, S, (WindowX, WindowY), weighted_clauses=True, boost_true_positive_feedback=0)
+        else:
+            return TM(Clauses, t, S, weighted_clauses=True, boost_true_positive_feedback=0)
+        
+
+    tm = GetMachine()
+
     #tm = MultiClassTsetlinMachine(100,10,4.45)
     #tm.fit(TrainX,TrainY,epochs=10)
     #print("Accuracy:", 100*(tm.predict(TestX) == TestY).mean())
@@ -55,11 +69,13 @@ def MakeTestlin(Clauses,t,S,Epochs):
     return (tm,result)
 
 def CrossValidation():
-    datasets = TsUtil.GenerateKFoldSet(dataPath + trainPl,dataPath + testPl)
+    datasets = DataUtil.GenerateKFoldSet(dataPath + trainPl,dataPath + testPl)
     results = []
     for sets in datasets:
         print("Making Tsetlin Machine for new set")
-        tm = MultiClassTsetlinMachine(clauses,T,s,boost_true_positive_feedback=0)
+        tm = TM(clauses, T, s, weighted_clauses=True)
+        if convolutional:
+            tm = TM(clauses, T, s, (WindowX, WindowY), weighted_clauses=True)
         result = 0.0
         TrainX = []
         TrainY = []
@@ -187,10 +203,11 @@ if __name__ == "__main__":
     ts = MakeTestlin(clauses,T,s,epochs)
     actions = GetClauses(ts[0],1,clauses)
     #print(actions[0])
-    TsUtil.IsClauseTrue(GetOutput(ts[0],1,0),testing[0][0])
+    print(TsUtil.IsClauseTrue(GetOutput(ts[0],1,0),testing[0][0]))
     #PrintClass(ts[0],1,clauses)
     #writefile = open("Clauses.txt","w)
-
+    import sys
+    sys.exit(1)
     counter = -1
     clas = 1
     
@@ -234,26 +251,45 @@ if __name__ == "__main__":
     for i in ClausesDict:
         i.sort(key=sortByKey)
     
-    Directory = "Clauses: " + str(clauses) + ", Threshold:" + str(T) + ", S: " + str(s) + ", Epochs: " + str(epochs)
+    Directory = "Clauses/" + "Clauses: " + str(clauses) + ", Threshold:" + str(T) + ", S: " + str(s) + ", Epochs: " + str(epochs)
     import os
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    if not os.path.exists(Directory):
+        os.makedirs(Directory)
     
-    counter = 0
-    for i in ClausesDict[40:]:
+    counter = 40
+    for i in ClausesDict[counter:]:
         if len(i)>0:
-            counter += len(i)
-            directory = ""
+            SubDirectory = "Bits: " + str(counter)
+            
+            if not os.path.exists(Directory + "/" + SubDirectory):
+                os.makedirs(Directory + "/" + SubDirectory)
             
             for bdb in i:
-                String = "Bits Set: " + sortByBit(bdb[0]) + ", Type of Clause: " + bdb[1] + ", Boards: " + str(len(bdb[2]))
-                open(Directory + "/" + String,"w")
-                bord = TsUtil.ReadableClause(bdb[0])
-                for row in bord:
-                    print(row)
-                print("-----------------------")
-
-    print(counter)
+                String = "Type of Clause: " + bdb[1] + ", Boards: " + str(len(bdb[2]))
+                
+                outFile = open(Directory + "/" + SubDirectory + "/" + String,"w")
+                
+                clss = TsUtil.ReadableClause(bdb[0])
+                for row in clss:
+                    stt = ""
+                    for index in row:
+                        stt += index + " "
+                    stt = stt + "\n"
+                    outFile.write(stt)
+                outFile.write("===================\n")
+                outFile.write("Boards: \n")
+                outFile.write("===================\n")
+                for sc in bdb[2]:
+                    aBoard = TsUtil.Readable(sc)
+                    for row in aBoard:
+                        stt = ""
+                        for index in row:
+                            stt += index + " "
+                        stt = stt + "\n"
+                        outFile.write(stt)
+                    outFile.write("-----------------\n")
+                outFile.close()
+        counter += 1
 
 
     

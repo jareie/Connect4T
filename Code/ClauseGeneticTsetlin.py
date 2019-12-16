@@ -1,8 +1,8 @@
 import Connect4 as Tsm
 import random
-import TsUtil as uti
+import GeneralUtil as gti
 
-variables = uti.LoadCfg("Config.cfg")
+variables = gti.LoadCfg("Config.cfg")
 
 sizePop = int(variables["GeneticTsetlin"]["sizePop"])
 epochs = int(variables["GeneticTsetlin"]["epochs"])

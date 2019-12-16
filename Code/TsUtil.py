@@ -1,122 +1,7 @@
 import random
+import numpy as np
 
-def ConvertToInt(liste):
-    product = []
-    for i in liste:
-        product.append(int(i))
-    return product
-
-def RandomIndexes(List,amount):
-    indexes = []
-
-    while len(indexes) < amount:
-        temp = len(List)
-        index = random.randint(0,temp-1)
-        if index in indexes:
-            continue
-        indexes.append(index)
-
-    indexes.sort(reverse=True)
-    #print(indexes)
-    
-    return indexes
-
-def RandomChoices2L(List1,List2,amount):
-    indexes = RandomIndexes(List1,amount)
-    tempX = []
-    tempY = []
-    for i in indexes:
-        tempX.append(List1.pop(i))
-        tempY.append(List2.pop(i))
-    return (tempX,tempY)
-
-def KFold(number,dataset):
-    CategoryW = []
-    CategoryL = []
-    for i in dataset:
-        if i[1] == 0:
-            CategoryL.append(i)
-        elif i[1] == 1:
-            CategoryL.append(i)
-    sets = []
-    for i in range(number):
-        index1 = int(len(CategoryL)/number)
-        index2 = int(len(CategoryW)/number)
-        testList = CategoryL[index1*i:index1*(i+1)] + CategoryW[index2*i:index2*(i+1)]
-        trainList = CategoryL[:index1*i] + CategoryL[index1*i:] + CategoryW[:index2*i] + CategoryW[index2*i:]
-        sets.append([trainList,testList])
-
-    return sets
-
-def LoadCfg(FileName):
-    print("Getting Config File")
-    config = open("Config.cfg","r")
-    rawInfo = config.readlines()
-    config.close()
-    Info = {}
-    category = []
-
-    for i in rawInfo:
-        temp = i.replace(" ","")
-        temp = temp.replace("\n","")
-        if temp == "":
-            continue
-        if temp[0] == "-":
-            ctg = temp.replace("-","")
-            category.append(ctg)
-            Info[ctg] = {}
-        else:
-            inf = temp.split("=")
-            if inf[1].find('"') < 0:
-                try:
-                    if inf[1] == "True":
-                        inf[1] = True
-                    elif inf[1] == "False":
-                        inf[1] = False
-                    else:
-                        inf[1] = float(inf[1])
-                except Exception:
-                    print("Failed: " + inf[1])
-            else:
-                inf[1] = inf[1].replace('"',"")
-            Info[category[len(category)-1]][inf[0]] = inf[1]
-        #print(category)
-
-    return Info
-
-def LoadFile(FileName,IncludeDraw=False):
-    print("Processing File: " + FileName)
-
-    testInfo = open(FileName,"r")
-    data = testInfo.readlines()
-    testInfo.close()
-
-    TestX = []
-    TestY = []
-
-    for i in data:
-        temp = i.replace("\n","")
-        temp = temp.split(",")
-        
-        tempList = ConvertToInt(temp[0:len(temp)-1])
-        result = int(temp[len(temp)-1])
-        if not IncludeDraw and result == 2:
-            #print("Including draw")
-            continue
-        TestX.append(tempList)
-        TestY.append(result)
-    return (TestX,TestY)
-
-def GenerateKFoldSet(FileName1,FileName2):
-    file1 = LoadFile(FileName1)
-    file2 = LoadFile(FileName2)
-    dataX = file1[0] + file2[0]
-    dataY = file1[1] + file2[1]
-    data = []
-    for i in range(len(dataX)):
-        data.append((dataX[i],dataY[i]))
-    return KFold(10,data)
-
+#Rearrange a list such that it is easier to work with
 def Rearrange(WrongList):
 	output = []
 	for column in range(6):
@@ -128,6 +13,40 @@ def Rearrange(WrongList):
 			output.append(WrongList[index-1])
 	return output
 
+def ReshapeData(GivenList,IsConvolutiional):
+    output = []
+    for i in GivenList:
+        NewTrainXEntry = Rearrange(i[:42]) + Rearrange(i[42:])
+        if IsConvolutiional:
+            temp = np.reshape(NewTrainXEntry,(7,6,2))
+            output.append(temp)
+        else:
+            output.append(NewTrainXEntry)
+    return output
+
+def ClausePiece(nonP1,nonP2,nP1,nP2):
+    fail = (nonP1 and nP1) or (nonP2 and nP2)
+    piece = ""
+    if fail:
+        piece = "f"
+    elif nP1 and nP2:
+        piece = "-"
+    elif nonP1 and nonP2:
+        piece = "*"
+    elif nonP1:
+        piece = "X"
+    elif nP1:
+        piece = "x"
+    elif nonP2:
+        piece = "O"
+    elif nP2:
+        piece = "o"
+    else:
+        piece = "_"
+    return piece
+
+
+#Generate a more readable clause
 def ReadableClause(outClause):
     output = outClause
 
@@ -139,9 +58,6 @@ def ReadableClause(outClause):
     
     rPlayer1 = negated[:int(len(negated)/2)]
     rPlayer2 = negated[int(len(negated)/2):]
-    
-    #print(nonNegated)
-    #print(negated)
 
     board = []
 
@@ -152,27 +68,11 @@ def ReadableClause(outClause):
             tp2 = tPlayer2[(column*7)+row]
             rp1 = rPlayer1[(column*7)+row]
             rp2 = rPlayer2[(column*7)+row]
-            fail = (tp1 and rp1) or (tp2 and rp2)
-            piece = ""
-            if fail:
-                piece = "f"
-            elif rp1 and rp2:
-                piece = "-"
-            elif tp1 and tp2:
-                piece = "*"
-            elif tp1:
-                piece = "X"
-            elif rp1:
-                piece = "x"
-            elif tp2:
-                piece = "O"
-            elif rp2:
-                piece = "o"
-            else:
-                piece = "_"
-            board[column].append(piece)
+
+            board[column].append(ClausePiece(tp1,tp2,rp1,rp2))
     return board
 
+#Create a more readable board
 def Readable(board):
     player1 = board[:int(len(board)/2)]
     player2 = board[int(len(board)/2):]
@@ -194,7 +94,7 @@ def Readable(board):
 
     return rBoard
 
-
+#Evaluate a clause for a board
 def IsClauseTrue(Clause,board):
     nonNegated = Clause[:int(len(Clause)/2)]
     negated = Clause[int(len(Clause)/2):]
@@ -228,6 +128,8 @@ def IsClauseTrue(Clause,board):
     return "True"
 
 
+#Generate Boards that is to be used for evaluating clauses
+
 def TransformBoard(board):
     player1 = [0 for i in range(42)]
     player2 = [0 for i in range(42)]
@@ -247,22 +149,18 @@ def AltRandomBoard():
     board = [[],[],[],[],[],[],[]]
     placements = random.randint(0,41)
     
-    for i in range(int(placements/2)):
+    def Placement():
         bplacement = random.randint(0,6)
         while len(board[bplacement]) > 5 :
             bplacement = random.randint(0,6)
-        board[bplacement].append("X")
+        return bplacement
 
-        bplacement = random.randint(0,6)
-        while len(board[bplacement]) > 5 :
-            bplacement = random.randint(0,6)
-        board[bplacement].append("O")
+    for i in range(int(placements/2)):
+        board[Placement()].append("X")
+        board[Placement()].append("O")
 
     if placements%2 > 0:
-        bplacement = random.randint(0,6)
-        while len(board[bplacement]) > 5 :
-            bplacement = random.randint(0,6)
-        board[bplacement].append("X")
+        board[Placement()].append("X")
 
     return TransformBoard(board)
 
@@ -282,11 +180,6 @@ def RandomBoard():
         placement = 0
         while True:
             placement = random.randint(0,6)
-            #column = 0-5
-            #row = 0-6
-            #(column*7)+row
-            #temp = 6-column
-			#index = (6*row)+temp
             if player1[(6*placement)+5] == 0:
                 break
         
@@ -317,13 +210,3 @@ def RandomBoard():
             player2[(6*placement)+index] = 1
     
     return player1 + player2
-
-
-'''bd = RandomBoard()
-#print(len(bd))
-Rearrange(bd[:42])
-print("-------------------")
-print(bd)
-rad = Readable(bd)
-for i in rad:
-    print(i)'''
