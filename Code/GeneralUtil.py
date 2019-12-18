@@ -15,6 +15,8 @@ def LoadCfg(FileName):
     for i in rawInfo:
         temp = i.replace(" ","")
         temp = temp.replace("\n","")
+        if temp == "#":
+            continue
         if temp == "":
             continue
         if temp[0] == "-":

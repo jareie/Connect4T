@@ -39,8 +39,6 @@ def DNA(amount):
     return [Gene() for i in range(amount)]
 
 def SameGene(gene1,gene2):
-    print(gene1)
-    print(gene2)
     for i in range(len(gene1)):
         if not gene1[i] == gene2[i]:
             return False
@@ -65,7 +63,9 @@ def RateGene(gene):
 
 import Proccessing as ps
 def RateMulti(dna):
+    print("Rating genes")
     scoreList = ps.MakeWorkers(RateGene,dna)
+    print("Done rating genes")
     return scoreList
     
 
@@ -158,11 +158,11 @@ if __name__ == "__main__":
     fi = open(variables["General"]["DataPath"] + "Result.txt","w")
     for i in genes:
         string = ""
-        ts = GetTAndS(i[0])
+        ts = GetTAndS(Clauses,i[0])
         for j in ts:
             string += str(j) + ", "
         string += "accuracy: "
-        string += str(i[2])
+        string += str(i[1])
         string += "\n"
         fi.write(string)
     fi.close()

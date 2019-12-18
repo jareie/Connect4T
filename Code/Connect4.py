@@ -5,7 +5,8 @@ import TsUtil
 import GeneralUtil
 import DataUtil
 
-
+#regne ut antall bit for 
+#forst kommer posisjon for vinduet, saa kommer vinduet som er 4,4,2 * 2
 variables = GeneralUtil.LoadCfg("Config.cfg")
 dataPath = variables["General"]["DataPath"]
 trainPl = variables["General"]["TrainingData"]
@@ -43,9 +44,9 @@ WindowX = int(variables["Connect4"]["WindowX"])
 WindowY = int(variables["Connect4"]["WindowY"])
 
 if convolutional:
-    from pyTsetlinMachine.tm import MultiClassConvolutionalTsetlinMachine2D as TM
+    from pyTsetlinMachineParallel.tm import MultiClassConvolutionalTsetlinMachine2D as TM
 else:
-    from pyTsetlinMachine.tm import MultiClassTsetlinMachine as TM
+    from pyTsetlinMachineParallel.tm import MultiClassTsetlinMachine as TM
 
 def MakeTestlin(Clauses,t,S,Epochs):
     def GetMachine():
@@ -54,7 +55,6 @@ def MakeTestlin(Clauses,t,S,Epochs):
         else:
             return TM(Clauses, t, S, weighted_clauses=True, boost_true_positive_feedback=0)
         
-
     tm = GetMachine()
 
     #tm = MultiClassTsetlinMachine(100,10,4.45)
@@ -65,7 +65,7 @@ def MakeTestlin(Clauses,t,S,Epochs):
     for i in range(Epochs):
         tm.fit(TrainX, TrainY, epochs=1, incremental=True)
         result = 100*(tm.predict(TestX) == TestY).mean()
-        print("Accuracy: ", result)
+        print(str(i) + " Accuracy: ", result)
     return (tm,result)
 
 def CrossValidation():
@@ -73,9 +73,13 @@ def CrossValidation():
     results = []
     for sets in datasets:
         print("Making Tsetlin Machine for new set")
-        tm = TM(clauses, T, s, weighted_clauses=True)
-        if convolutional:
-            tm = TM(clauses, T, s, (WindowX, WindowY), weighted_clauses=True)
+        def GetMachine():
+            if convolutional:
+                return TM(clauses, T, s, (WindowX, WindowY), weighted_clauses=True, boost_true_positive_feedback=0)
+            else:
+                return TM(clauses, T, s, weighted_clauses=True, boost_true_positive_feedback=0)
+        
+        tm = GetMachine()
         result = 0.0
         TrainX = []
         TrainY = []
@@ -89,11 +93,13 @@ def CrossValidation():
             TestX.append(i[0])
             TestY.append(i[1])
         
+        inbetweenResults = []
         for i in range(epochs):
-            tm.fit(np.array(TrainX),np.array(TrainY),epochs=1,incremental=True)
-            result = 100*(tm.predict(np.array(TestX)) == np.array(TestY)).mean()
+            tm.fit(np.array(TsUtil.ReshapeData(TrainX, convolutional)),np.array(TrainY),epochs=1,incremental=True)
+            result = 100*(tm.predict(np.array(TsUtil.ReshapeData(TestX, convolutional))) == np.array(TestY)).mean()
+            inbetweenResults.append(result)
             print(" " + str(result))
-        results.append(result)
+        results.append(inbetweenResults)
     return results
     
 
@@ -200,12 +206,23 @@ def sortByBit(inp):
     return result
 
 if __name__ == "__main__":
-    ts = MakeTestlin(clauses,T,s,epochs)
-    actions = GetClauses(ts[0],1,clauses)
+    #ts = MakeTestlin(clauses,T,s,epochs)
+    #actions = GetClauses(ts[0],1,clauses)
     #print(actions[0])
-    print(TsUtil.IsClauseTrue(GetOutput(ts[0],1,0),testing[0][0]))
+    #print(TsUtil.IsClauseTrue(GetOutput(ts[0],1,0),testing[0][0]))
     #PrintClass(ts[0],1,clauses)
     #writefile = open("Clauses.txt","w)
+
+    resFile = open("Data/CorssvalidationResult.txt","w")
+    results = CrossValidation()
+    for row in results:
+        string = ""
+        for ind in row:
+            string += str(ind) + ", "
+        string += "\n"
+        resFile.write(string)
+    resFile.close()
+
     import sys
     sys.exit(1)
     counter = -1
