@@ -147,7 +147,7 @@ def TransformBoard(board):
 
 def AltRandomBoard():
     board = [[],[],[],[],[],[],[]]
-    placements = random.randint(0,41)
+    placements = random.randint(10,41)
     
     def Placement():
         bplacement = random.randint(0,6)
