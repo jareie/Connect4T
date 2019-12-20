@@ -259,6 +259,56 @@ def CheckClauses(clause,boards):
             elif boardRes == 2:
                 print("Draw")
 
+def ClausesTestData(ts,testx,testy,clauses):
+    clas = 1
+    
+    def sortByKey(inp):
+        return len(inp[2])
+
+    boards = []
+    for i in range(len(TestX)):
+        boards.append((TestX[i],TestY[i]))
+
+    #Get Classes and create list/tuple with score
+    TotalClausesWScore = []
+    for i in range(clauses):
+        claus = GetOutput(ts[0],clas,i)
+        
+        typeOfClause = "Non"
+        if i%2 > 0:
+            continue
+            typeOfClause = "Negated"
+
+        TotalClausesWScore.append([claus,typeOfClause,0])
+
+    for i in TotalClausesWScore:
+        counter += 1
+        if counter%2 > 0:
+            continue
+        #PrintClause(TsUtil.ReadableClause(i[0]))
+        
+        for board in boards:
+            evaluation = TsUtil.IsClauseTrue(i[0],board[0])
+            result = -1
+            
+            if evaluation == "True":
+                if board[1] == 1:
+                    i[2] += 1
+                else:
+                    i[2] -= 1 
+        #break
+        #CheckClauses(claus,testing)
+        #print("---------------------------------------------")
+    
+    TotalClausesWScore.sort(reverse=True,key=sortByKey)
+    templist = TotalClausesWScore[:3]
+    for i in templist:
+        clss = ReadableClause(i[0])
+        for j in clss:
+            print(j)
+        print("-----------------------------")
+        
+    
 
 def Clauses(clauses,ts,T,s,epochs):
     def sortByKey(inp):
