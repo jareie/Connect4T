@@ -1,7 +1,9 @@
 import random
 import numpy as np
 
-#Rearrange a list such that it is easier to work with
+#Rearrange a list such that it is easier to work with.
+#And to make it easier to turn into readable form
+#only does it for one player. Or list of 42 bits
 def Rearrange(WrongList):
 	output = []
 	for column in range(6):
@@ -13,6 +15,9 @@ def Rearrange(WrongList):
 			output.append(WrongList[index-1])
 	return output
 
+#This will rearrange a given list. Such that data can just be sent in.
+#If the Convolutional version, is being used. The data need a array reshape. in which numpys
+#reshape function does this.
 def ReshapeData(GivenList,IsConvolutiional):
     output = []
     for i in GivenList:
@@ -24,6 +29,8 @@ def ReshapeData(GivenList,IsConvolutiional):
             output.append(NewTrainXEntry)
     return output
 
+#Just a helper function to make it easier to update the symbols that represent pieces or information
+#in the clauses
 def ClausePiece(nonP1,nonP2,nP1,nP2):
     fail = (nonP1 and nP1) or (nonP2 and nP2)
     piece = ""
@@ -46,7 +53,7 @@ def ClausePiece(nonP1,nonP2,nP1,nP2):
     return piece
 
 
-#Generate a more readable clause
+#Generate a more readable clause. The output is given as a list of lists
 def ReadableClause(outClause):
     output = outClause
 
@@ -72,7 +79,8 @@ def ReadableClause(outClause):
             board[column].append(ClausePiece(tp1,tp2,rp1,rp2))
     return board
 
-#Create a more readable board
+#Create a more readable board. cant be the same as clause, since board only shows where there are pieces.
+#Not where there shuold or shouldnt be
 def Readable(board):
     player1 = board[:int(len(board)/2)]
     player2 = board[int(len(board)/2):]
@@ -94,7 +102,7 @@ def Readable(board):
 
     return rBoard
 
-#Evaluate a clause for a board
+#Evaluate a clause for a board. Such that one knows if the clause votes for that board
 def IsClauseTrue(Clause,board):
     nonNegated = Clause[:int(len(Clause)/2)]
     negated = Clause[int(len(Clause)/2):]
@@ -128,8 +136,7 @@ def IsClauseTrue(Clause,board):
     return "True"
 
 
-#Generate Boards that is to be used for evaluating clauses
-
+#Helkper function that turns boards on a easier to manipualte form into bit form
 def TransformBoard(board):
     player1 = [0 for i in range(42)]
     player2 = [0 for i in range(42)]
@@ -145,6 +152,7 @@ def TransformBoard(board):
     bits = Rearrange(player1) + Rearrange(player2)
     return bits
 
+#Generate Boards that is to be used for evaluating clauses
 def AltRandomBoard():
     board = [[],[],[],[],[],[],[]]
     placements = random.randint(10,41)
@@ -164,7 +172,7 @@ def AltRandomBoard():
 
     return TransformBoard(board)
 
-
+#deprecated function that generates boards without the readable way
 def RandomBoard():
     player1 = [0 for i in range(42)]
     player2 = [0 for i in range(42)]
@@ -211,6 +219,8 @@ def RandomBoard():
     
     return player1 + player2
 
+#Gets the features of a clause. 84*2 means the 84 bits that where given as an input when training.
+# Times 2 for the negated and non-negated
 def GetOutput(tm,tm_class,clause):
     output = []
     for i in range(84*2):
@@ -218,6 +228,7 @@ def GetOutput(tm,tm_class,clause):
         output.append(outputbit)
     return output
 
+#Gets all the clauses for a given class
 def GetClauses(Ts,Clas,clauses):
     output = []
     for i in range(clauses):
@@ -226,6 +237,7 @@ def GetClauses(Ts,Clas,clauses):
         output.append(action)
     return output
 
+#Printer functions
 def PrintClause(clause):
     for i in clause:
         print(i)
@@ -234,7 +246,7 @@ def PrintClass(clauses):
     for i in clauses:
         PrintClause(i)
 
-#Sjekker en caluse mot ett brett
+#printer function that checks a clause against a board
 def CheckClause(clause,board):
     result = IsClauseTrue(clause,board)
     if result == "True":
@@ -245,7 +257,7 @@ def CheckClause(clause,board):
             print(j)
     return result
 
-#Sjekker en clause mot flere brett
+#Another printer function made to get more results printed in the console
 def CheckClauses(clause,boards):
     for i in range(len(boards[0])):
         result = CheckClause(clause,boards[0][i])
@@ -259,6 +271,7 @@ def CheckClauses(clause,boards):
             elif boardRes == 2:
                 print("Draw")
 
+#Tests the clauses on the testing data. Also makes sure there is an equal amount of wins and losses.
 def ClausesTestData(ts,testx,testy,clauses):
     clas = 1
     def sortByKey(inp):
@@ -317,7 +330,8 @@ def ClausesTestData(ts,testx,testy,clauses):
         for j in clss:
             print(j)
         print("-----------------------------")
-        
+
+#Checks the clauses for patterns and prints them       
 def ClausesPattern(ts,clauses):
     clas = 1
     tpye = "o"
@@ -359,7 +373,7 @@ def ClausesPattern(ts,clauses):
             print(j)
         print("-------------")
 
-
+#Checks clauses against the randomly generated boards, and writes them with the boards to a file
 def Clauses(clauses,ts,T,s,epochs):
     def sortByKey(inp):
         return len(inp[2])

@@ -4,6 +4,7 @@ import DataUtil
 import TsUtil
 import GeneralUtil
 
+#loads paramteres for testing other learning algorithms
 variables = GeneralUtil.LoadCfg("Config.cfg")
 dataPath = variables["General"]["DataPath"]
 trainPl = variables["General"]["TrainingData"]
@@ -14,6 +15,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import LinearSVC
 
+#allows easier reuse of code. just gets an instance of the desired learning machine
 def GetLearningAutomata(typeOfAutomata):
     if typeOfAutomata == "Categorical":
         return CategoricalNB()
@@ -24,6 +26,7 @@ def GetLearningAutomata(typeOfAutomata):
     elif typeOfAutomata == "LinearSVC":
         return LinearSVC()
 
+#Runs crossvalidation on a given machine
 def CrossValidation(typeOfAutomata):
     datasets = DataUtil.GenerateKFoldSet(dataPath + trainPl,dataPath + testPl)
     results = []
@@ -58,6 +61,7 @@ def CrossValidation(typeOfAutomata):
         results.append(inbetweenResults)
     return results
 
+#Everything below juist gets the results and prints them to a file
 results = []
 
 results.append(("Categorical",CrossValidation("Categorical")))

@@ -1,9 +1,11 @@
+#Converts a list of strings or other, into a list of ints.
 def ConvertToInt(liste):
     product = []
     for i in liste:
         product.append(int(i))
     return product
 
+#Loads the config file. 
 def LoadCfg(FileName):
     print("Getting Config File")
     config = open("Config.cfg","r")

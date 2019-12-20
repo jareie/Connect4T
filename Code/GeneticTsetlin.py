@@ -1,6 +1,7 @@
 import Connect4 as Tsm
 import random
-
+#Does the same as Clause Genetic Tsetlin, but does not need to specify the clause.
+#This has not been updated in a while, and is thus deprecated.
 sizePop = 2
 epochs = 2
 keepMultiplier = 0.9

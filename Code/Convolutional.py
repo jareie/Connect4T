@@ -4,7 +4,8 @@ import numpy as np
 import TsUtil
 import GeneralUtil
 import DataUtil
-
+#The connect4 file, along with the config file is used instead.
+#Thsi file was only for testing how to set it up
 
 variables = GeneralUtil.LoadCfg("Config.cfg")
 dataPath = variables["General"]["DataPath"]

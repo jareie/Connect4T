@@ -2,6 +2,7 @@ import Connect4 as Tsm
 import random
 import GeneralUtil as gti
 
+#Gets the parameters for the hypoer-paramtere optimization
 variables = gti.LoadCfg("Config.cfg")
 
 sizePop = int(variables["GeneticTsetlin"]["sizePop"])
@@ -12,6 +13,13 @@ Clauses = int(variables["ClauseGeneticTsetlin"]["clauses"])
 
 heldGenes = []
 
+#In general this file will take a given amount of clauses, and optimize as best as it can,
+#the hyper-paramteres for those clauses, and the dataset.
+#This takes quite a bit of time, and there are some functions that tries to help speed up the process.
+#Such as only evvaluating a set of parameters once, remembering the ones it has seen. And to use the
+#multiprocessing library
+
+#Gets the hyper-paramteres values from the bits used
 def GetTAndS(clause,bits):
     Tbits = bits[:int(len(bits)/2)]
     sbits = bits[int(len(bits)/2):]
@@ -28,28 +36,33 @@ def GetTAndS(clause,bits):
             s += (2**((RangeBitsS-1)-i))
     return [clause,T,s]
 
+#Creates a random gene of hyper-paramteres
 def Gene():
     #T, s
     return [random.randint(0,1) for i in range(8*2)]
 
+#Generates a set of genes for a given amount
 def DNA(amount):
     if not amount % 2 == 0:
         amount = amount+1
         print("Added to the amount")
     return [Gene() for i in range(amount)]
 
+#Compares 2 genes, to check if they are the same
 def SameGene(gene1,gene2):
     for i in range(len(gene1)):
         if not gene1[i] == gene2[i]:
             return False
     return True
 
+#Checks is the gene has already been seen
 def InHeldGenes(Gene):
     for i in range(len(heldGenes)):
         if SameGene(heldGenes[i][0],Gene):
             return i
     return -1
 
+#Rates a gene, by running them in a Tsetlin Machine
 def RateGene(gene):
     index = InHeldGenes(gene)
     if index > -1:
@@ -61,6 +74,7 @@ def RateGene(gene):
     score = out[1]
     return (gene,score)
 
+#Allows for faster rating of all genes
 import Proccessing as ps
 def RateMulti(dna):
     print("Rating genes")
@@ -68,7 +82,7 @@ def RateMulti(dna):
     print("Done rating genes")
     return scoreList
     
-
+#Rates a list of genes
 def RateDNA(dna):
     scoreList = []
     for i in dna:
@@ -76,6 +90,7 @@ def RateDNA(dna):
         scoreList.append(rating)
     return scoreList
 
+#mixes 2 given genes
 def Mix(a,b):
     index1 = random.randint(0,len(a)-1)
     index2 = random.randint(index1,len(a)-1)
@@ -83,6 +98,7 @@ def Mix(a,b):
     new2 = b[0][:index1] + a[0][index1:index2] + b[0][index2:]
     return [new1,new2]
 
+#Finds which genes to mix
 def Pairings(dna):
     dnaCopy = dna[:]
     random.shuffle(dnaCopy)
@@ -95,20 +111,24 @@ def Pairings(dna):
         newGenes.extend(temp)
     return newGenes
 
+#Removes the scoring from the genes, so they can be used elsewhere
 def RemoveScoring(inpList):
     output = []
     for i in inpList:
         output.append(i[0])
     return output
 
+#sorting the genes
 def NewSort(gene):
     for i in heldGenes:
         if SameGene(gene[0],i[0]):
             return i[1]/i[2]
 
+#another way of sorting the genes
 def SortVal(list):
     return list[1]
 
+#Adds an unseen gene to a list of seen genes, with its rating
 def HeldGeneAdd(listOfGenes):
     for i in listOfGenes:
         exists = False
@@ -121,6 +141,7 @@ def HeldGeneAdd(listOfGenes):
         if not exists:
             heldGenes.append([i[0],i[1],1])
 
+#If the gene has no score. So that there isnt a differnce when accessing the list and getting array exception
 def HeldGeneNoScoreAdd(listOfGenes):
     for i in listOfGenes:
         exists = False
@@ -131,6 +152,7 @@ def HeldGeneNoScoreAdd(listOfGenes):
         if not exists:
             heldGenes.append([i[0],i[1],1])
 
+#Does one generation of the genes
 def Generation(listOfGenes):
     newDNA = Pairings(listOfGenes)
     newList = listOfGenes + RateMulti(newDNA)
@@ -141,6 +163,7 @@ def Generation(listOfGenes):
     print("--------------------------------")
     return newList[int(len(newList)/2):]
 
+#Main method for running the code, and saving the results to a file
 def Run():
     print("--------------------------------")
     genes = RateMulti(DNA(sizePop))

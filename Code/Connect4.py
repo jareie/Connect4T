@@ -5,30 +5,29 @@ import TsUtil
 import GeneralUtil
 import DataUtil
 
-#regne ut antall bit for 
-#forst kommer posisjon for vinduet, saa kommer vinduet som er 4,4,2 * 2
+#Get config parameters
 variables = GeneralUtil.LoadCfg("Config.cfg")
 dataPath = variables["General"]["DataPath"]
 trainPl = variables["General"]["TrainingData"]
 testPl = variables["General"]["TestingData"]
 
+#paramteres for deciding what version of the Tsetlin Machine
+#and what the pro gram should do
 convolutional = variables["Connect4"]["Convolutional"]
 parallel = variables["Connect4"]["Parallel"]
 CrossVal = variables["General"]["CrossEvaluation"]
 FindClauses = variables["General"]["FindClauses"]
 
-#print(variables)
+
 #------------------------------------------------------------
 print("Getting Data")
 
-#training = TsUtil.LoadFile("trainingdata.txt")
-#testing = TsUtil.LoadFile("testdata.txt")
-
+#Load the data
 training = DataUtil.LoadFile(dataPath + trainPl)
 testing = DataUtil.LoadFile(dataPath + testPl)
 print(str(len(training[0])) + " entries")    
 
-
+#Transform the data to correct form
 TrainX = np.array(TsUtil.ReshapeData(training[0], convolutional))
 TrainY = np.array(training[1])
 
@@ -37,6 +36,7 @@ TestY = np.array(testing[1])
 
 #------------------------------------------------------------
 print("Setting Up Machine")
+#Get parameters for Tsetlin Machine
 clauses = int(variables["Connect4"]["Clause"])
 T = variables["Connect4"]["T"]
 s = variables["Connect4"]["S"]
@@ -46,6 +46,8 @@ epochs = int(variables["Connect4"]["epochs"])
 WindowX = int(variables["Connect4"]["WindowX"])
 WindowY = int(variables["Connect4"]["WindowY"])
 
+#Set up the appropriate library
+#allows easy reuse of other code
 if convolutional:
     if parallel:
         from pyTsetlinMachineParallel.tm import MultiClassConvolutionalTsetlinMachine2D as TM
@@ -57,6 +59,7 @@ else:
     else:
         from pyTsetlinMachine.tm import MultiClassTsetlinMachine as TM
 
+#Creates a Tsetlin Machine based on the hyper-parameters, version. And trains it on the data.
 def MakeTestlin(Clauses,t,S,Epochs):
     def GetMachine():
         if convolutional:
@@ -77,6 +80,7 @@ def MakeTestlin(Clauses,t,S,Epochs):
         print(str(i) + " Accuracy: ", result)
     return (tm,result)
 
+#Cross validaiont function. uses other helper functions to generate the sets it is to test the crewated machine on
 def CrossValidation():
     datasets = DataUtil.GenerateKFoldSet(dataPath + trainPl,dataPath + testPl)
     results = []
@@ -111,6 +115,7 @@ def CrossValidation():
         results.append(inbetweenResults)
     return results
 
+#Runs the cross validation and writes the reults to a file
 def RunCrossWWrite():
     resFile = open("Data/CorssvalidationResult.txt","w")
     results = CrossValidation()
@@ -123,16 +128,8 @@ def RunCrossWWrite():
     resFile.close()
 
 #------------------------------------------------------------
-#print(MakeTestlin(10000,80,27,15))
-#tm.ta_action(mc_tm_class, clause, ta)
-#har 84 features ta = feature
-#vil trenge aa gaa over hver feature for hver clause
-#for eksempel 100,10,5 med 2 klasser og 84 input/features
-#2 100 84
-#mc_tm_class = 1 tsetlin machine per klasse man har (win,loss,draw = 3 klasser)
-#clause = clause. hvis gitt 85 clauses, kan velge fra 0-84
-#ta = ukjent. Paavirker en posisjon i tsetlin automata
 
+#Deprecated function that was supposed to help bet bits fdrom a byte of data
 def GetBits(byte):
     bits = [0 for i in range(8)]
     for i in range(8):
@@ -143,33 +140,12 @@ def GetBits(byte):
             byte = byte-temp
             bits[i] = 1
     return bits
-#print(GetBits(130))
-
-#non-negated
-#plain
-#Henter ut action for en gitt clause i en gitt klasse
-
-
-'''
-det vi trodde:
-1 2 3 4 5 6 7
-8 9 10 11 12 1 2 3 4 5 6 7 8 9 10 11 12
-
-det dataen var:
-6 12
-5 11
-4 10
-3 9
-2 8
-1 7
-'''
 
 
 
 #------------------------------------------------------------
-#t = MakeTestlin(5000, 35, 45,1)
-#t = MakeTestlin(935, 5, 14.617627461915859,1)
 
+#Main
 if __name__ == "__main__":
     if CrossVal:
         RunCrossWWrite()

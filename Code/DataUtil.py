@@ -1,6 +1,8 @@
 import random
 import GeneralUtil as gti
+#Variuous helper functions
 
+#Gets random indexes from a list. Deprecated
 def RandomIndexes(List,amount):
     indexes = []
 
@@ -16,6 +18,7 @@ def RandomIndexes(List,amount):
     
     return indexes
 
+#Loads a file. Can be specified if the file should include the draws
 def LoadFile(FileName,IncludeDraw=False):
     print("Processing File: " + FileName)
 
@@ -39,6 +42,7 @@ def LoadFile(FileName,IncludeDraw=False):
         TestY.append(result)
     return (TestX,TestY)
 
+#Antoher funciton that gets random indexes from 2 random lists. Deprecated
 def RandomChoices2L(List1,List2,amount):
     indexes = RandomIndexes(List1,amount)
     tempX = []
@@ -48,6 +52,8 @@ def RandomChoices2L(List1,List2,amount):
         tempY.append(List2.pop(i))
     return (tempX,tempY)
 
+
+#Helper funciton for the k-fold. Splits the data into the sets also normalizes the data for the sets
 def KFold(number,dataset):
     CategoryW = []
     CategoryL = []
@@ -71,7 +77,7 @@ def KFold(number,dataset):
 
     return sets
 
-
+#Just a helper functionthat gets the data from the training and testing files
 def GenerateKFoldSet(FileName1,FileName2):
     file1 = LoadFile(FileName1)
     file2 = LoadFile(FileName2)

@@ -1,5 +1,8 @@
 import random
 import GeneralUtil as gti
+#This program just gets the raw data, and transforms it into bits, or data that the Tsetlin Machine can take. 
+#The data is split into 2 files. DataTesting.data and DataTrainign.data.
+
 
 variables = gti.LoadCfg("Config.cfg")
 
