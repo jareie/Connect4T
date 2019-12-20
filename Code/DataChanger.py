@@ -1,7 +1,7 @@
 import random
-import TsUtil
+import GeneralUtil as gti
 
-variables = TsUtil.LoadCfg("Config.cfg")
+variables = gti.LoadCfg("Config.cfg")
 
 TestPl = variables["General"]["TestingData"]
 TrainPl = variables["General"]["TrainingData"]
@@ -30,6 +30,11 @@ unProccesedData = open(DataPath + dataPt).readlines()
 data = ProccesData(unProccesedData)
 BitsData = []
 
+wins = []
+loss = []
+draws = []
+
+
 for line in data:
     Player1 = [0 for i in range(42)]
     Player2 = [0 for i in range(42)]
@@ -43,11 +48,11 @@ for line in data:
     NewFormat = Player1 + Player2
 
     if temp == "win":
-        BitsData.append((NewFormat,1))
+        wins.append((NewFormat,1))
     elif temp == "loss":
-        BitsData.append((NewFormat,0))
+        loss.append((NewFormat,0))
     else:
-        BitsData.append((NewFormat,2))
+        draws.append((NewFormat,2))
 
 def Hexify(Bits):
     HexString = ""
@@ -58,10 +63,17 @@ def Hexify(Bits):
     return
 
 if shuffleData:
-    random.shuffle(BitsData)
+    random.shuffle(wins)
+    random.shuffle(loss)
+    random.shuffle(draws)
 
-training = BitsData[:int(len(BitsData)*ratio)]
-testing = BitsData[int(len(BitsData)*ratio):]
+training = wins[:int(len(wins)*ratio)] + loss[:int(len(loss)*ratio)] + draws[:int(len(draws)*ratio)]
+testing = wins[int(len(wins)*ratio):] + loss[int(len(loss)*ratio):] + draws[int(len(draws)*ratio):]
+
+random.seed(0)
+random.shuffle(training)
+random.shuffle(testing)
+random.seed(None)
 
 WriteTrFile = open(DataPath + TrainPl,"w")
 WriteTeFile = open(DataPath + TestPl,"w")
@@ -82,5 +94,6 @@ for data in testing:
 
 WriteTrFile.close()
 WriteTeFile.close()
+print("Files written")
 #84 bits
 #print(data[0:10])

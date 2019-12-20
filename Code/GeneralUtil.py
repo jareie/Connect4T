@@ -15,7 +15,7 @@ def LoadCfg(FileName):
     for i in rawInfo:
         temp = i.replace(" ","")
         temp = temp.replace("\n","")
-        if temp == "#":
+        if temp.find("#") >= 0:
             continue
         if temp == "":
             continue
@@ -25,6 +25,7 @@ def LoadCfg(FileName):
             Info[ctg] = {}
         else:
             inf = temp.split("=")
+            #print(inf,inf[0])
             if inf[1].find('"') < 0:
                 try:
                     if inf[1] == "True":

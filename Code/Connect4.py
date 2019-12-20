@@ -13,6 +13,9 @@ trainPl = variables["General"]["TrainingData"]
 testPl = variables["General"]["TestingData"]
 
 convolutional = variables["Connect4"]["Convolutional"]
+parallel = variables["Connect4"]["Parallel"]
+CrossVal = variables["General"]["CrossEvaluation"]
+FindClauses = variables["General"]["FindClauses"]
 
 #print(variables)
 #------------------------------------------------------------
@@ -44,9 +47,15 @@ WindowX = int(variables["Connect4"]["WindowX"])
 WindowY = int(variables["Connect4"]["WindowY"])
 
 if convolutional:
-    from pyTsetlinMachineParallel.tm import MultiClassConvolutionalTsetlinMachine2D as TM
+    if parallel:
+        from pyTsetlinMachineParallel.tm import MultiClassConvolutionalTsetlinMachine2D as TM
+    else:
+        from pyTsetlinMachine.tm import MultiClassConvolutionalTsetlinMachine2D as TM
 else:
-    from pyTsetlinMachineParallel.tm import MultiClassTsetlinMachine as TM
+    if parallel:
+        from pyTsetlinMachineParallel.tm import MultiClassTsetlinMachine as TM
+    else:
+        from pyTsetlinMachine.tm import MultiClassTsetlinMachine as TM
 
 def MakeTestlin(Clauses,t,S,Epochs):
     def GetMachine():
@@ -101,7 +110,17 @@ def CrossValidation():
             print(" " + str(result))
         results.append(inbetweenResults)
     return results
-    
+
+def RunCrossWWrite():
+    resFile = open("Data/CorssvalidationResult.txt","w")
+    results = CrossValidation()
+    for row in results:
+        string = ""
+        for ind in row:
+            string += str(ind) + ", "
+        string += "\n"
+        resFile.write(string)
+    resFile.close()
 
 #------------------------------------------------------------
 #print(MakeTestlin(10000,80,27,15))
@@ -129,12 +148,7 @@ def GetBits(byte):
 #non-negated
 #plain
 #Henter ut action for en gitt clause i en gitt klasse
-def GetOutput(tm,tm_class,clause):
-    output = []
-    for i in range(84*2):
-        outputbit = tm.ta_action(tm_class,clause,i)
-        output.append(outputbit)
-    return output
+
 
 '''
 det vi trodde:
@@ -151,197 +165,18 @@ det dataen var:
 '''
 
 
-def GetClauses(Ts,Clas,clauses):
-    output = []
-    for i in range(clauses):
-        clause = GetOutput(Ts,Clas,i)
-        action = TsUtil.ReadableClause(clause)
-        output.append(action)
-    return output
 
-def PrintClause(clause):
-    for i in clause:
-        print(i)
-
-def PrintClass(clauses):
-    for i in clauses:
-        PrintClause(i)
 #------------------------------------------------------------
 #t = MakeTestlin(5000, 35, 45,1)
 #t = MakeTestlin(935, 5, 14.617627461915859,1)
-#Sjekker en caluse mot ett brett
-def CheckClause(clause,board):
-    result = TsUtil.IsClauseTrue(clause,board)
-    if result == "True":
-        print("-----------")
-        #print(result)
-        bo = TsUtil.Readable(board)
-        for j in bo:
-            print(j)
-    return result
-
-#Sjekker en clause mot flere brett
-def CheckClauses(clause,boards):
-    for i in range(len(boards[0])):
-        result = CheckClause(clause,boards[0][i])
-        #print(claus)
-        if result == "True":
-            boardRes = boards[1][i]
-            if boardRes == 0:
-                print("Loss")
-            elif boardRes == 1:
-                print("Win")
-            elif boardRes == 2:
-                print("Draw")
-
-def sortByKey(inp):
-    return len(inp[2])
-
-def sortByBit(inp):
-    result = 0
-    
-    for i in inp:
-        result += i
-        
-    return result
 
 if __name__ == "__main__":
-    #ts = MakeTestlin(clauses,T,s,epochs)
-    #actions = GetClauses(ts[0],1,clauses)
-    #print(actions[0])
-    #print(TsUtil.IsClauseTrue(GetOutput(ts[0],1,0),testing[0][0]))
-    #PrintClass(ts[0],1,clauses)
-    #writefile = open("Clauses.txt","w)
-
-    resFile = open("Data/CorssvalidationResult.txt","w")
-    results = CrossValidation()
-    for row in results:
-        string = ""
-        for ind in row:
-            string += str(ind) + ", "
-        string += "\n"
-        resFile.write(string)
-    resFile.close()
-
-    import sys
-    sys.exit(1)
-    counter = -1
-    clas = 1
-    
-    boards = []
-    for i in range(1000):
-        boards.append(TsUtil.AltRandomBoard())
-
-    #boards = []
-    #for i in range(len(TestX)):
-    #    boards.append((TestX[i],TestY[i]))
-
- 
-    
-    #Get Classes and create list/tuple with score
-    TotalClausesWScore = []
-    for i in range(clauses):
-        claus = GetOutput(ts[0],clas,i)
-        
-        typeOfClause = "Non"
-        if i%2 > 0:
-            continue
-            typeOfClause = "Negated"
-
-        TotalClausesWScore.append([claus,typeOfClause,[]])
-
-
-    #print(TsUtil.Rearrange([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42]))
-    for claus in TotalClausesWScore:
-        for board in boards:
-            evaluation = TsUtil.IsClauseTrue(claus[0],board)
-            if evaluation == "True":
-                claus[2].append(board)
-    
-    #TotalClausesWScore.sort(key=sortByBit)
-    
-    ClausesDict = [[] for i in range(85)]
-    for claus in TotalClausesWScore:
-        bits = sortByBit(claus[0])
-        ClausesDict[bits].append(claus)
-
-    for i in ClausesDict:
-        i.sort(key=sortByKey)
-    
-    Directory = "Clauses/" + "Clauses: " + str(clauses) + ", Threshold:" + str(T) + ", S: " + str(s) + ", Epochs: " + str(epochs)
-    import os
-    if not os.path.exists(Directory):
-        os.makedirs(Directory)
-    
-    counter = 40
-    for i in ClausesDict[counter:]:
-        if len(i)>0:
-            SubDirectory = "Bits: " + str(counter)
-            
-            if not os.path.exists(Directory + "/" + SubDirectory):
-                os.makedirs(Directory + "/" + SubDirectory)
-            
-            for bdb in i:
-                String = "Type of Clause: " + bdb[1] + ", Boards: " + str(len(bdb[2]))
-                
-                outFile = open(Directory + "/" + SubDirectory + "/" + String,"w")
-                
-                clss = TsUtil.ReadableClause(bdb[0])
-                for row in clss:
-                    stt = ""
-                    for index in row:
-                        stt += index + " "
-                    stt = stt + "\n"
-                    outFile.write(stt)
-                outFile.write("===================\n")
-                outFile.write("Boards: \n")
-                outFile.write("===================\n")
-                for sc in bdb[2]:
-                    aBoard = TsUtil.Readable(sc)
-                    for row in aBoard:
-                        stt = ""
-                        for index in row:
-                            stt += index + " "
-                        stt = stt + "\n"
-                        outFile.write(stt)
-                    outFile.write("-----------------\n")
-                outFile.close()
-        counter += 1
-
+    if CrossVal:
+        RunCrossWWrite()
+    elif FindClauses:
+        ts = MakeTestlin(clauses,T,s,epochs)
+        TsUtil.Clauses(clauses,ts,T,s,epochs)
+    else:
+        ts = MakeTestlin(clauses,T,s,epochs)
 
     
-    '''
-    for i in TotalClausesWScore:
-        counter += 1
-        if counter%2 > 0:
-            continue
-        #PrintClause(TsUtil.ReadableClause(i[0]))
-        
-        for board in boards:
-            evaluation = TsUtil.IsClauseTrue(i[0],board[0])
-            result = -1
-            
-            if evaluation == "True":
-                result = 1
-            elif evaluation == "False":
-                result = 0
-            
-            if result == board[1]:
-                i[1] += 1
-            else:
-                i[1] -= 1 
-        #break
-        #CheckClauses(claus,testing)
-        #print("---------------------------------------------")
-    
-    TotalClausesWScore.sort(key=sortByKey)
-    print(TotalClausesWScore)
-    print(len(TotalClausesWScore))
-    print(counter)
-    #print(TotalClausesWScore)
-    '''
-
-
-    #result = CrossValidation()
-    #print(result)
-    #print(result.mean())

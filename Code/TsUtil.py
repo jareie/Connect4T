@@ -210,3 +210,148 @@ def RandomBoard():
             player2[(6*placement)+index] = 1
     
     return player1 + player2
+
+def GetOutput(tm,tm_class,clause):
+    output = []
+    for i in range(84*2):
+        outputbit = tm.ta_action(tm_class,clause,i)
+        output.append(outputbit)
+    return output
+
+def GetClauses(Ts,Clas,clauses):
+    output = []
+    for i in range(clauses):
+        clause = GetOutput(Ts,Clas,i)
+        action = ReadableClause(clause)
+        output.append(action)
+    return output
+
+def PrintClause(clause):
+    for i in clause:
+        print(i)
+
+def PrintClass(clauses):
+    for i in clauses:
+        PrintClause(i)
+
+#Sjekker en caluse mot ett brett
+def CheckClause(clause,board):
+    result = IsClauseTrue(clause,board)
+    if result == "True":
+        print("-----------")
+        #print(result)
+        bo = Readable(board)
+        for j in bo:
+            print(j)
+    return result
+
+#Sjekker en clause mot flere brett
+def CheckClauses(clause,boards):
+    for i in range(len(boards[0])):
+        result = CheckClause(clause,boards[0][i])
+        #print(claus)
+        if result == "True":
+            boardRes = boards[1][i]
+            if boardRes == 0:
+                print("Loss")
+            elif boardRes == 1:
+                print("Win")
+            elif boardRes == 2:
+                print("Draw")
+
+
+def Clauses(clauses,ts,T,s,epochs):
+    def sortByKey(inp):
+        return len(inp[2])
+
+    def sortByBit(inp):
+        result = 0
+        
+        for i in inp:
+            result += i
+            
+        return result
+
+
+    counter = -1
+    clas = 1
+    
+    boards = []
+    for i in range(1000):
+        boards.append(AltRandomBoard())
+
+    #boards = []
+    #for i in range(len(TestX)):
+    #    boards.append((TestX[i],TestY[i]))
+
+ 
+    
+    #Get Classes and create list/tuple with score
+    TotalClausesWScore = []
+    for i in range(clauses):
+        claus = GetOutput(ts[0],clas,i)
+        
+        typeOfClause = "Non"
+        if i%2 > 0:
+            continue
+            typeOfClause = "Negated"
+
+        TotalClausesWScore.append([claus,typeOfClause,[]])
+
+
+    #print(TsUtil.Rearrange([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42]))
+    for claus in TotalClausesWScore:
+        for board in boards:
+            evaluation = IsClauseTrue(claus[0],board)
+            if evaluation == "True":
+                claus[2].append(board)
+    
+    #TotalClausesWScore.sort(key=sortByBit)
+    
+    ClausesDict = [[] for i in range(85)]
+    for claus in TotalClausesWScore:
+        bits = sortByBit(claus[0])
+        ClausesDict[bits].append(claus)
+
+    for i in ClausesDict:
+        i.sort(key=sortByKey)
+    
+    Directory = "Clauses/" + "Clauses: " + str(clauses) + ", Threshold:" + str(T) + ", S: " + str(s) + ", Epochs: " + str(epochs)
+    import os
+    if not os.path.exists(Directory):
+        os.makedirs(Directory)
+    
+    counter = 40
+    for i in ClausesDict[counter:]:
+        if len(i)>0:
+            SubDirectory = "Bits: " + str(counter)
+            
+            if not os.path.exists(Directory + "/" + SubDirectory):
+                os.makedirs(Directory + "/" + SubDirectory)
+            
+            for bdb in i:
+                String = "Type of Clause: " + bdb[1] + ", Boards: " + str(len(bdb[2]))
+                
+                outFile = open(Directory + "/" + SubDirectory + "/" + String,"w")
+                
+                clss = ReadableClause(bdb[0])
+                for row in clss:
+                    stt = ""
+                    for index in row:
+                        stt += index + " "
+                    stt = stt + "\n"
+                    outFile.write(stt)
+                outFile.write("===================\n")
+                outFile.write("Boards: \n")
+                outFile.write("===================\n")
+                for sc in bdb[2]:
+                    aBoard = Readable(sc)
+                    for row in aBoard:
+                        stt = ""
+                        for index in row:
+                            stt += index + " "
+                        stt = stt + "\n"
+                        outFile.write(stt)
+                    outFile.write("-----------------\n")
+                outFile.close()
+        counter += 1

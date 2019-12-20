@@ -57,10 +57,10 @@ def KFold(number,dataset):
         elif i[1] == 1:
             CategoryL.append(i)
 
-    #random.seed(2)
-    #random.shuffle(CategoryW)
-    #random.shuffle(CategoryL)
-    #random.seed(None)
+    random.seed(0)
+    random.shuffle(CategoryW)
+    random.shuffle(CategoryL)
+    random.seed(None)
     sets = []
     for i in range(number):
         index1 = int(len(CategoryL)/number)

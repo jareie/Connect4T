@@ -141,17 +141,17 @@ def Generation(listOfGenes):
     print("--------------------------------")
     return newList[int(len(newList)/2):]
 
-if __name__ == "__main__":
+def Run():
     print("--------------------------------")
     genes = RateMulti(DNA(sizePop))
     print(genes)
 
     for i in range(epochs):
-        print("Percent Complete: " + str(((i+1)/epochs)*100))
+        print("Percent Complete: " + str(float(float(i+1)/epochs)*100))
         genes = Generation(genes)
         if SameGene(genes[0][0],genes[len(genes)-1][0]):
             print("New Pool")
-            temp = RateDNA(DNA(int(len(genes)*keepMultiplier)))
+            temp = RateMulti(DNA(int(len(genes)*keepMultiplier)))
             genes = genes[int(len(genes)*keepMultiplier):] + temp
 
 
@@ -167,3 +167,4 @@ if __name__ == "__main__":
         fi.write(string)
     fi.close()
 
+Run()
