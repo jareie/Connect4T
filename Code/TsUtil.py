@@ -261,14 +261,22 @@ def CheckClauses(clause,boards):
 
 def ClausesTestData(ts,testx,testy,clauses):
     clas = 1
-    
     def sortByKey(inp):
-        return len(inp[2])
+        return inp[2]
 
+    print("Getting Boards")
     boards = []
-    for i in range(len(TestX)):
-        boards.append((TestX[i],TestY[i]))
+    wins = []
+    loss = []
+    for i in range(len(testx)):
+        if testy[i] == 1:
+            wins.append((testx[i],testy[i]))
+        elif testy[i] == 0:
+            loss.append((testx[i],testy[i]))
+    boards = wins[:len(loss)] + loss
 
+
+    print("Getting clauses")
     #Get Classes and create list/tuple with score
     TotalClausesWScore = []
     for i in range(clauses):
@@ -276,20 +284,16 @@ def ClausesTestData(ts,testx,testy,clauses):
         
         typeOfClause = "Non"
         if i%2 > 0:
-            continue
             typeOfClause = "Negated"
+            continue
 
         TotalClausesWScore.append([claus,typeOfClause,0])
 
+    print("Comparing clauses and boards")
     for i in TotalClausesWScore:
-        counter += 1
-        if counter%2 > 0:
-            continue
         #PrintClause(TsUtil.ReadableClause(i[0]))
-        
         for board in boards:
-            evaluation = TsUtil.IsClauseTrue(i[0],board[0])
-            result = -1
+            evaluation = IsClauseTrue(i[0],board[0])
             
             if evaluation == "True":
                 if board[1] == 1:
@@ -301,6 +305,12 @@ def ClausesTestData(ts,testx,testy,clauses):
         #print("---------------------------------------------")
     
     TotalClausesWScore.sort(reverse=True,key=sortByKey)
+    newlist = []
+    for i in TotalClausesWScore:
+        if True:
+            newlist.append(i)
+
+    
     templist = TotalClausesWScore[:3]
     for i in templist:
         clss = ReadableClause(i[0])
@@ -308,7 +318,47 @@ def ClausesTestData(ts,testx,testy,clauses):
             print(j)
         print("-----------------------------")
         
+def ClausesPattern(ts,clauses):
+    clas = 1
+    tpye = "o"
+
+    TotalClausesWScore = []
+    for i in range(clauses):
+        claus = GetOutput(ts[0],clas,i)
+        
+        typeOfClause = "Non"
+        if i%2 > 0:
+            typeOfClause = "Negated"
+            continue
+
+        clss = ReadableClause(claus)
+        val = False
+        
+        for row in range(len(clss)):
+            for column in range(len(clss[row])):
+                if clss[row][column] == tpye:
+                    
+                    if row < 4:
+                        val = val or (clss[row+1][column] == tpye and clss[row+2][column] == tpye)
+                    
+                    if column < 3:
+                        val = val or (clss[row][column+1] == tpye and clss[row][column+2] == tpye)
+                        
+                    if row < 4 and column < 3:
+                        val = val or (clss[row+1][column+1] == tpye and clss[row+2][column+2] == tpye)
+                        
+                    if row > 2 and column < 3:
+                        val = val or (clss[row-1][column+1] == tpye and clss[row-2][column+2] == tpye)
+                    
+        if val:
+            TotalClausesWScore.append(claus)
     
+    for i in TotalClausesWScore:
+        clss = ReadableClause(i)
+        for j in clss:
+            print(j)
+        print("-------------")
+
 
 def Clauses(clauses,ts,T,s,epochs):
     def sortByKey(inp):

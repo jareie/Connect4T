@@ -175,7 +175,9 @@ if __name__ == "__main__":
         RunCrossWWrite()
     elif FindClauses:
         ts = MakeTestlin(clauses,T,s,epochs)
-        TsUtil.Clauses(clauses,ts,T,s,epochs)
+        TsUtil.ClausesTestData(ts,TestX,TestY,clauses)
+        #TsUtil.Clauses(clauses,ts,T,s,epochs)
+        #TsUtil.ClausesPattern(ts,clauses)
     else:
         ts = MakeTestlin(clauses,T,s,epochs)
 
